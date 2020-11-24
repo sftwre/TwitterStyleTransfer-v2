@@ -1,15 +1,16 @@
 import torch
 import numpy as np
 import torch.nn as nn
-import torch.functional as F
+import torch.nn.functional as F
 from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim=64, z_dim=20, c_dim=2, tweet_len=280):
+    def __init__(self, vocab_size, h_dim=64, z_dim=20, c_dim=2, tweet_len=280, gpu=False):
         super(VAE, self).__init__()
 
 
+        self.gpu = gpu
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.vocab_size = vocab_size
@@ -104,7 +105,7 @@ class VAE(nn.Module):
         c = torch.from_numpy(np.random.multinomial(1, [0.5, 0.5], size).astype(np.float32))
         return c
 
-    def forward_decoder(self, inputs, z, c):
+    def forwardDecoder(self, inputs, z, c):
         """
         passes embeddings, encoding, and controllable
         params through decoder to generate a new tweet
@@ -129,5 +130,226 @@ class VAE(nn.Module):
         y = y.view(seqLen, size, self.vocab_size)
 
         return y
+
+    def forwardDiscriminator(self, inputs):
+        """
+        Inputs is batch of sentences size x seqlen
+        :param inputs:
+        :return:
+        """
+        inputs = self.word_emb(inputs)
+        return self.forwardDiscEmbed(inputs)
+
+    def forwardDiscEmbed(self, inputs):
+        """
+        Inputs is embeddings of shape size x seqLen x emb_dim
+        :param inputs:
+        :return: classified attributes
+        """
+        inputs = inputs.unsqueeze(1)
+
+        x1 = F.relu(self.conv1(inputs)).squeeze()
+        x2 = F.relu(self.conv2(inputs)).squeeze()
+        x3 = F.relu(self.conv3(inputs)).squeeze()
+
+        x1 = F.max_pool1d(x1, x1.size(2)).squeeze()
+        x2 = F.max_pool1d(x2, x2.size(2)).squeeze()
+        x3 = F.max_pool1d(x3, x3.size(2)).squeeze()
+
+        x = torch.cat([x1, x2, x3], dim=1)
+
+        c_hat = self.disc_fc(x)
+
+        return c_hat
+
+    def forward(self, tweet, use_c_prior=True):
+        """
+        tweet: sequence of word indices.
+        use_c_prior: whether to sample c from prior or from discriminator.
+
+        Returns: reconstruction loss of VAE and KL-div loss of VAE.
+        """
+        self.train()
+
+        size = tweet.size(1)
+
+        # sentence: '<start> I want to fly <eos>'
+        # enc_inputs: '<start> I want to fly <eos>'
+        # dec_inputs: '<start> I want to fly <eos>'
+        # dec_targets: 'I want to fly <eos> <pad>'
+        pad_words = torch.LongTensor([1]).repeat(1, size)
+
+        enc_inputs = tweet
+        dec_inputs = tweet
+        dec_targets = torch.cat([tweet[1:], pad_words], dim=0)
+
+        # Encoder: sentence -> z
+        mu, logvar = self.forwardEncoder(enc_inputs)
+        z = self.sample_z(mu, logvar)
+
+        if use_c_prior:
+            c = self.sample_c_prior(size)
+        else:
+            c = self.forwardDiscriminator(tweet.transpose(0, 1))
+
+        # Decoder: sentence -> y
+        y = self.forwardDecoder(dec_inputs, z, c)
+
+        recon_loss = F.cross_entropy(y.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
+        kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
+
+        return recon_loss, kl_loss
+
+    def generate_sentences(self, batch_size):
+        """
+        Generate sentences and corresponding z of (batch_size x max_sent_len)
+        """
+        samples = []
+        cs = []
+
+        for _ in range(batch_size):
+            z = self.sample_z_prior(1)
+            c = self.sample_c_prior(1)
+            samples.append(self.sample_sentence(z, c, raw=True))
+            cs.append(c.long())
+
+        X_gen = torch.cat(samples, dim=0)
+        c_gen = torch.cat(cs, dim=0)
+
+        return X_gen, c_gen
+
+    def sample_sentence(self, z, c, raw=False, temp=1):
+        """
+        Sample single sentence from p(x|z,c) according to given temperature.
+        `raw = True` means this returns sentence as in dataset which is useful
+        to train discriminator. `False` means that this will return list of
+        `word_idx` which is useful for evaluation.
+        """
+        self.eval()
+
+        word = torch.LongTensor([2])
+        word = word
+
+        z, c = z.view(1, 1, -1), c.view(1, 1, -1)
+
+        h = torch.cat([z, c], dim=2)
+
+        outputs = []
+
+        if raw:
+            outputs.append(self.START_IDX)
+
+        for i in range(self.MAX_SENT_LEN):
+            emb = self.word_emb(word).view(1, 1, -1)
+            emb = torch.cat([emb, z, c], 2)
+
+            output, h = self.decoder(emb, h)
+            y = self.decoder_fc(output).view(-1)
+            y = F.softmax(y/temp, dim=0)
+
+            idx = torch.multinomial(y)
+
+            word = torch.LongTensor([int(idx)])
+
+            idx = int(idx)
+
+            if not raw and idx == 3:
+                break
+
+            outputs.append(idx)
+
+        # Back to default state: train
+        self.train()
+
+        if raw:
+            outputs = torch.LongTensor(outputs).unsqueeze(0)
+            return outputs.cuda() if self.gpu else outputs
+        else:
+            return outputs
+
+    def generate_soft_embed(self, mbsize, temp=1):
+        """
+        Generate soft embeddings of (mbsize x emb_dim) along with target z
+        and c for each row (mbsize x {z_dim, c_dim})
+        """
+        samples = []
+        targets_c = []
+        targets_z = []
+
+        for _ in range(mbsize):
+            z = self.sample_z_prior(1)
+            c = self.sample_c_prior(1)
+
+            samples.append(self.sample_soft_embed(z, c, temp=1))
+            targets_z.append(z)
+            targets_c.append(c)
+
+        X_gen = torch.cat(samples, dim=0)
+        targets_z = torch.cat(targets_z, dim=0)
+        _, targets_c = torch.cat(targets_c, dim=0).max(dim=1)
+
+        return X_gen, targets_z, targets_c
+
+    def sample_soft_embed(self, z, c, temp=1):
+        """
+        Sample single soft embedded sentence from p(x|z,c) and temperature.
+        Soft embeddings are calculated as weighted average of word_emb
+        according to p(x|z,c).
+        """
+        self.eval()
+
+        z, c = z.view(1, 1, -1), c.view(1, 1, -1)
+
+        word = torch.LongTensor([self.START_IDX])
+        word = word.cuda() if self.gpu else word
+        word = word # '<start>'
+        emb = self.embedder(word).view(1, 1, -1)
+        emb = torch.cat([emb, z, c], 2)
+
+        h = torch.cat([z, c], dim=2)
+
+        outputs = [self.embedder(word).view(1, -1)]
+
+        for i in range(self.MAX_SENT_LEN):
+            output, h = self.decoder(emb, h)
+            o = self.decoder_fc(output).view(-1)
+
+            # Sample softmax with temperature
+            y = F.softmax(o / temp, dim=0)
+
+            # Take expectation of embedding given output prob -> soft embedding
+            # <y, w> = 1 x n_vocab * n_vocab x emb_dim
+            emb = y.unsqueeze(0) @ self.word_emb.weight
+            emb = emb.view(1, 1, -1)
+
+            # Save resulting soft embedding
+            outputs.append(emb.view(1, -1))
+
+            # Append with z and c for the next input
+            emb = torch.cat([emb, z, c], 2)
+
+        # 1 x 16 x emb_dim
+        outputs = torch.cat(outputs, dim=0).unsqueeze(0)
+
+        # Back to default state: train
+        self.train()
+
+        return outputs.cuda() if self.gpu else outputs
+
+    def word_dropout(self, inputs):
+        """
+        Do word dropout: with prob `p_word_dropout`, set the word to '<unk>'.
+        """
+        data = inputs.clone()
+
+        # Sample masks: elems with val 1 will be set to <unk>
+        mask = torch.from_numpy(
+            np.random.binomial(1, p=self.p_word_dropout, size=tuple(data.size())).astype('uint8')
+        )
+
+        # Set to <unk>
+        data[mask] = 0
+
+        return data
 
 
