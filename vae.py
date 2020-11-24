@@ -6,7 +6,7 @@ from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim=64, z_dim=20, c_dim=2, tweet_len=280, gpu=False):
+    def __init__(self, vocab_size, h_dim, z_dim, c_dim, tweet_len=280, gpu=False):
         super(VAE, self).__init__()
 
 
