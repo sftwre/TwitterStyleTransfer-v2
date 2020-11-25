@@ -5,9 +5,9 @@ from torchtext import data
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 
-class TweetsDataset():
+class TwitterDataset():
 
-    def __init__(self, emb_dim, batch_size, tweet_len=280):
+    def __init__(self, emb_dim=50, batch_size=32, tweet_len=280):
         self.emb_dim = emb_dim
         self.batch_size = batch_size
         self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', lower=True, tokenize='spacy', fix_length=tweet_len)
