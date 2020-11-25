@@ -32,9 +32,14 @@ class TwitterDataset():
         self.X_train = X_train
         self.y_train = y_train
 
+        self.TEXT.build_vocab(self.vocab)
+        self.LABEL.build_vocab(y_train)
+
+        # number of characters in vocab
+        self.n_vocab = len(self.TEXT.vocab.itos)
+
         # define training iterator
         self.train_iter = self._dataIterator(self.X_train, self.y_train)
-
 
     def _loadData(self, dataFile, labelsFile):
         """
@@ -62,7 +67,6 @@ class TwitterDataset():
         with open(path, 'r', encoding='UTF-8') as file:
             vocab = file.read().split()
             vocab = set(vocab)
-            # args['vocab_size'] = len(vocab)
 
         return vocab
 
@@ -93,7 +97,7 @@ class TwitterDataset():
             assert len(text) == len(labels)
         except AssertionError:
             print(f'Length of text data and labels must \
-            match \n text length: {len(text)}, labels lenght: {len(labels)}')
+            match \n text length: {len(text)}, labels length: {len(labels)}')
             exit(-1)
 
         for start in range(0, len(text), self.batch_size):
@@ -103,6 +107,15 @@ class TwitterDataset():
     def nextBatch(self):
         tweets, labels = next(self.train_iter)
         return tweets, labels
+
+    def getVocabVectors(self):
+        return self.TEXT.vocab.vectors
+
+    def idxs2sentence(self, idxs):
+        return ' '.join([self.TEXT.vocab.itos[i] for i in idxs])
+
+    def idx2label(self, idx):
+        return self.LABEL.vocab.itos[idx]
 
 
 
