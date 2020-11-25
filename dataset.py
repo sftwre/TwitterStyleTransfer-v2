@@ -79,7 +79,7 @@ class TwitterDataset():
         tokens = list(map(lambda x: x.translate(table), tokens))
 
         # filter out non-alphabetic, stopwords, short tokens, and tokens not in vocab
-        tokens = list(filter(lambda x: x.isalpha() and x not in sw \
+        tokens = list(filter(lambda x: x.isalpha() and x not in self.sw \
                                        and len(x) > 1 and x in self.vocab, tokens))
 
         # create new sentences
