@@ -114,7 +114,10 @@ function App() {
         <div className="dropdown">
           <select
             id="account"
-            onChange={(e) => setAccount(e.target.value)}
+            onChange={(e) => {
+              setTweet(defaultTweet);
+              setAccount(e.target.value);
+            }}
             value={account}
           >
             {Object.keys(accounts).map((accountOption) => (

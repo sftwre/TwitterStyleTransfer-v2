@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.f1cdd234.chunk.css",
+    "main.js": "/static/js/main.f278314d.chunk.js",
+    "main.js.map": "/static/js/main.f278314d.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.dd4eabb2.js",
+    "runtime-main.js.map": "/static/js/runtime-main.dd4eabb2.js.map",
+    "static/js/2.2b12f110.chunk.js": "/static/js/2.2b12f110.chunk.js",
+    "static/js/2.2b12f110.chunk.js.map": "/static/js/2.2b12f110.chunk.js.map",
+    "static/js/3.aff271b3.chunk.js": "/static/js/3.aff271b3.chunk.js",
+    "static/js/3.aff271b3.chunk.js.map": "/static/js/3.aff271b3.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/main.f1cdd234.chunk.css.map": "/static/css/main.f1cdd234.chunk.css.map",
+    "static/js/2.2b12f110.chunk.js.LICENSE.txt": "/static/js/2.2b12f110.chunk.js.LICENSE.txt",
+    "static/media/DalaiLama.99e5eb80.jpg": "/static/media/DalaiLama.99e5eb80.jpg",
+    "static/media/elonmusk.8111a512.jpg": "/static/media/elonmusk.8111a512.jpg",
+    "static/media/realDonaldTrump.70f6d65c.jpg": "/static/media/realDonaldTrump.70f6d65c.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.dd4eabb2.js",
+    "static/js/2.2b12f110.chunk.js",
+    "static/css/main.f1cdd234.chunk.css",
+    "static/js/main.f278314d.chunk.js"
+  ]
+}
