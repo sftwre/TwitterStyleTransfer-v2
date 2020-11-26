@@ -26,7 +26,7 @@ Run the app
 flask run
 ```
 
-Visit the development site at [http://127.0.0.1:5000/](http://127.0.0.1:5000/). Note that this will pull from the static `build/` directory, so any frontend changes will not be reflected here until the frontend is rebuit using the `npm run build` command (discussed in the frontend section).
+Visit the development site at http://127.0.0.1:5000/. Note that this will pull from the static `build/` directory, so any frontend changes will not be reflected here until the frontend is rebuit using the `npm run build` command (discussed in the frontend section).
 
 ## Running the frontend
 
@@ -48,7 +48,7 @@ Run the app
 npm start
 ```
 
-You can now visit (http://localhost:3000)[http://localhost:3000] and the page will be automatically reloaded when changes are made.
+You can now visit http://localhost:3000 and the page will be automatically reloaded when changes are made.
 
 Build a optimized production code (necessary for frontend changes to be reflected in Heroku and when running flask)
 
