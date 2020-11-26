@@ -1,0 +1,192 @@
+$twit-blue: #1d9bf0;
+$twit-dark: #15212b;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+h1 span {
+  background-color: $twit-blue;
+  color: #fff;
+  padding: 3px 8px;
+  text-transform: uppercase;
+}
+
+h2 {
+  color: $twit-dark;
+  text-decoration: underline;
+}
+
+.intro {
+  background: $twit-dark;
+  color: #fff;
+  padding: 30px 100px;
+  position: relative;
+  overflow: hidden;
+
+  .intro-icon {
+    position: absolute;
+    left: 10%;
+    top: -30px;
+    font-size: 300px;
+    z-index: 1;
+  }
+}
+
+.twit-profile-img {
+  border-radius: 50%;
+  float: left;
+  margin-right: 5px;
+  width: 47px;
+  height: 47px;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: row;
+  align-self: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.twit-button {
+  background: $twit-blue;
+  border: 0px solid #fff;
+  border-radius: 9999px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 30px;
+  padding: 0 15px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  text-align: center;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgb(26, 145, 218);
+  }
+}
+.compose {
+  text-align: center;
+
+  select {
+    border: 1px solid #ccd6dd;
+    margin: 5px 0;
+    padding: 3px 8px;
+  }
+
+  .compose-tweet {
+    border: 1px solid #ccd6dd;
+    margin: 0 auto;
+    max-width: 550px;
+    padding: 10px 15px;
+
+    input {
+      border: 0px solid #fff;
+      font-size: 19px;
+      outline: none;
+      width: 100%;
+    }
+
+    .share-button {
+      clear: both;
+      border-top: 1px solid #ccd6dd;
+      margin-top: 5px;
+      padding-top: 5px;
+      text-align: right;
+    }
+  }
+}
+
+.generated-content {
+  text-align: center;
+
+  .generated-tweet {
+    border: 1px solid #ccd6dd;
+    border-radius: 15px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Ubuntu, "Helvetica Neue", sans-serif;
+    line-height: 1.3125;
+    margin: 10px auto;
+    padding: 10px 15px 5px 15px;
+    position: relative;
+    max-width: 550px;
+    text-align: left;
+
+    .twit-icon {
+      font-size: 25px;
+      position: absolute;
+      right: 12px;
+      top: 10px;
+    }
+
+    .profile {
+      height: 49px;
+      padding-bottom: 10px;
+
+      p {
+        cursor: pointer;
+        font-size: 15px;
+        margin: 0 5px;
+
+        &.name {
+          color: rgb(20, 23, 26);
+          font-weight: bold;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+
+    .date {
+      margin-top: 2px;
+      position: relative;
+      width: 100%;
+
+      span {
+        cursor: pointer;
+        position: absolute;
+        right: 0;
+      }
+    }
+
+    .meta {
+      border-top: 1px solid #ccd6dd;
+      margin-top: 5px;
+      padding-top: 5px;
+
+      span {
+        cursor: pointer;
+      }
+
+      span.like {
+        margin-right: 20px;
+      }
+    }
+
+    p {
+      margin: 0;
+
+      &.light {
+        color: rgb(101, 119, 134);
+        font-weight: 400;
+      }
+    }
+    &:hover {
+      background: rgb(245, 248, 250);
+    }
+  }
+}
+
+footer {
+  background: $twit-dark;
+  color: white;
+  margin: 20px 0 0 0;
+  text-align: center;
+  padding: 20px;
+}
