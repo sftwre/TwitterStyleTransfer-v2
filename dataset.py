@@ -36,7 +36,7 @@ class TwitterDataset():
         self.y_train = y_train
 
         self.TEXT.vocab = self._buildVocab(self.X_train)
-        self.LABEL.vocab = self._buildVocab(self.y_train)
+        self.LABEL.vocab = self._buildVocab(self.y_train, labels=True)
 
         # size of vocabulary
         self.vocab_size = len(self.TEXT.vocab.itos)
@@ -81,17 +81,18 @@ class TwitterDataset():
         tokens = ' '.join(tokens)
         return tokens
 
-    def _buildVocab(self, data):
+    def _buildVocab(self, data, labels=False):
 
         counter = Counter()
 
-        for tweet in data:
-            words = tweet.split()
+        for x in data:
+            words = x.split()
             counter.update(words)
 
         specials = ['<unk>', '<pad>', '<start>', '<eos>']
+        vocab = Vocab(counter, specials=specials) if not labels else Vocab(counter, specials_first=False)
 
-        return Vocab(counter, specials=specials)
+        return vocab
 
     def _dataIterator(self, text, labels):
         """
