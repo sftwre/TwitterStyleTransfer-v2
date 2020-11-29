@@ -205,7 +205,9 @@ function App() {
         </div>
       )}
 
-      <footer>Made in Austin &copy; 2020</footer>
+      <footer>
+        Made in Austin &copy; 2020 by Isaac Buitrago and Levi Villarreal
+      </footer>
     </>
   );
 }
