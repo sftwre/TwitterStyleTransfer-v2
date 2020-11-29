@@ -34,46 +34,57 @@ def main(args):
     # optimization algorithm
     optimizer = optim.Adam(model.vae_params, lr=lr)
 
-    # for each epoch, train on data
-    for e in range(epochs):
+    try:
 
-        interval = 0
-        for inputs, labels in dataset.nextBatch():
-            recon_loss, kl_loss = model.forward(inputs)
-            loss = recon_loss + kld_weight * kl_loss
+        # for each epoch, train on data
+        for e in range(epochs):
 
-            # Anneal kl_weight
-            if e > kld_start_inc and kld_weight < kld_max:
-                kld_weight += kld_inc
+            interval = 0
+            for inputs, labels in dataset.nextBatch():
+                recon_loss, kl_loss = model.forward(inputs)
+                loss = recon_loss + kld_weight * kl_loss
 
-            loss.backward()
-            grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
-            optimizer.step()
-            optimizer.zero_grad()
+                # Anneal kl_weight
+                if e > kld_start_inc and kld_weight < kld_max:
+                    kld_weight += kld_inc
 
-            if interval % report_interval == 0:
-                z = model.sample_z_prior(1)
-                c = model.sample_c_prior(1)
+                loss.backward()
+                grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
+                optimizer.step()
+                optimizer.zero_grad()
 
-                sample_idxs = model.sample_sentence(z, c)
-                sample_sent = dataset.idxs2sentence(sample_idxs)
+                if interval % report_interval == 0:
+                    z = model.sample_z_prior(1)
+                    c = model.sample_c_prior(1)
 
-                print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recons: {recon_loss.item():.4f};',
-                      f'KL: {kl_loss.item():.4f}; Grad_norm: {grad_norm.item():.4f}')
+                    sample_idxs = model.sample_sentence(z, c)
+                    sample_sent = dataset.idxs2sentence(sample_idxs)
 
-                print(f'Sample: "{sample_sent}"', end='\n')
+                    print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recons: {recon_loss.item():.4f};',
+                          f'KL: {kl_loss.item():.4f}; Grad_norm: {grad_norm.item():.4f}')
 
-            # Anneal learning rate
-            new_lr = lr * (0.5 ** (e // lr_decay_every))
-            for param_group in optimizer.param_groups:
-                param_group['lr'] = new_lr
+                    print(f'Sample: "{sample_sent}"', end='\n')
 
-            interval += 1
+                # Anneal learning rate
+                new_lr = lr * (0.5 ** (e // lr_decay_every))
+                for param_group in optimizer.param_groups:
+                    param_group['lr'] = new_lr
+
+                interval += 1
+        saveModel(model)
+
+    except KeyboardInterrupt:
+        saveModel(model)
+
+
+def saveModel(model):
 
     if not os.path.exists('models/'):
         os.makedirs('models/')
 
-    torch.save(model.state_dict(), 'models/vae.pt')
+    PATH = 'models/vae.pt'
+
+    torch.save(model.state_dict(), PATH)
 
 
 if __name__ == '__main__':
