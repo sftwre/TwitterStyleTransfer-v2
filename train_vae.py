@@ -11,12 +11,10 @@ def main(args):
     lr = args.lr
     epochs = args.epochs
     gpu = args.gpu
-    batch_size = 32
-    z_dim = 20
+    z_dim = 64
     h_dim = 64
     lr_decay_every = 1000000
     report_interval = 10
-    z_dim = h_dim
 
     # number of controllable params
     c_dim = 2
