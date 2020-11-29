@@ -14,12 +14,12 @@ def main(args):
     z_dim = 64
     h_dim = 64
     lr_decay_every = 1000000
-    report_interval = 10
+    report_interval = 100
 
     # number of controllable params
     c_dim = 2
 
-    dataset = TwitterDataset()
+    dataset = TwitterDataset(gpu=gpu)
 
     model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
 
@@ -38,7 +38,7 @@ def main(args):
         for e in range(epochs):
 
             interval = 0
-            for inputs, labels in dataset.nextBatch():
+            for inputs, labels in dataset.trainIterator:
                 recon_loss, kl_loss = model.forward(inputs)
                 loss = recon_loss + kld_weight * kl_loss
 
@@ -87,9 +87,9 @@ def saveModel(model):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--lr', default=.001)
-    parser.add_argument('--gpu', default=False, help='Flag to run model on gpu')
-    parser.add_argument('--epochs', default=100, help='Training epochs')
+    parser.add_argument('--lr', default=.001, type=float)
+    parser.add_argument('--gpu', default=False, type=bool, help='Flag to run model on gpu')
+    parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
 
     args = parser.parse_args()
 
