@@ -8,7 +8,9 @@ nltk.download('stopwords')
 
 class TwitterDataset():
 
-    def __init__(self, emb_dim=50, batch_size=32, tweet_len=280):
+    def __init__(self, emb_dim=50, batch_size=32, tweet_len=280, gpu=False):
+
+        self.gpu = gpu
         self.emb_dim = emb_dim
         self.batch_size = batch_size
         self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
@@ -40,7 +42,7 @@ class TwitterDataset():
         self.vocab_size = len(self.TEXT.vocab.itos)
 
         # define training iterator
-        self.train_iter = self._dataIterator(self.X_train, self.y_train)
+        self.trainIterator = None
 
     def _loadData(self, dataFile, labelsFile):
         """
@@ -107,13 +109,17 @@ class TwitterDataset():
 
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
-            yield [text[start:end], labels[start:end]]
+            encodedText = self.TEXT.process(text[start:end])
+            encodedLabels = self.LABEL.process(labels[start:end])
 
-    def nextBatch(self):
-        tweets, labels = next(self.train_iter)
-        encodedTweets = self.TEXT.process(tweets)
-        encodedLabels = self.LABEL.process(labels)
-        yield encodedTweets, encodedLabels
+            if self.gpu:
+                encodedText = encodedText.cuda()
+                encodedLabels = encodedLabels.cuda()
+
+            yield encodedText, encodedLabels
+
+    def resetTrainBatches(self):
+        self.trainIterator = self._dataIterator(self.X_train, self.y_train)
 
     def getVocabVectors(self):
         return self.TEXT.vocab.vectors
