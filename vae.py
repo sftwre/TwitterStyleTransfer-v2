@@ -149,8 +149,9 @@ class VAE(nn.Module):
         y1 = y1.view(seqLen, bsize, self.vocab_size)
 
         # y2 is prob. distribution over accounts
-        y2 = self.decoder_fc2(y1)
-        return y1, y2
+        # y2 = self.decoder_fc2(y1)
+
+        return y1
 
     def forwardDiscriminator(self, inputs):
         """
@@ -183,7 +184,7 @@ class VAE(nn.Module):
 
         return c_hat
 
-    def forward(self, inputs, labels, use_c_prior=True):
+    def forward(self, inputs, use_c_prior=True):
         """
         tweet: sequence of word indices.
         use_c_prior: whether to sample c from prior or from discriminator.
@@ -211,13 +212,13 @@ class VAE(nn.Module):
             c = self.forwardDiscriminator(inputs.transpose(0, 1))
 
         # Decoder: sentence -> y
-        y1, y2 = self.forwardDecoder(dec_inputs, z, c, cell_state)
+        y1 = self.forwardDecoder(dec_inputs, z, c, cell_state)
 
         recon_loss = F.cross_entropy(y1.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
-        thandle_loss = F.cross_entropy(y2.view(-1, self.n_accounts), labels)
+        # thandle_loss = F.cross_entropy(y2.view(-1, self.n_accounts), labels)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
 
-        return recon_loss, thandle_loss, kl_loss
+        return recon_loss, kl_loss
 
     def generate_sentences(self, batch_size):
         """
