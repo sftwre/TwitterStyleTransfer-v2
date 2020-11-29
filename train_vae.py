@@ -41,8 +41,8 @@ def main(args):
             dataset.resetTrainBatches()
 
             for inputs, labels in dataset.trainIterator:
-                recon_loss, kl_loss = model.forward(inputs, labels)
-                loss = recon_loss + kld_weight * kl_loss
+                recon_loss, thandle_loss, kl_loss = model.forward(inputs, labels)
+                loss = recon_loss + thandle_loss + kld_weight * kl_loss
 
                 # Anneal kl_weight
                 if e > kld_start_inc and kld_weight < kld_max:
