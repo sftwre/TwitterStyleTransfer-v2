@@ -58,8 +58,8 @@ def main(args):
                 sample_idxs = model.sample_sentence(z, c)
                 sample_sent = dataset.idxs2sentence(sample_idxs)
 
-                print(f'Epoch-{e}; Loss: {loss.data[0]:.4f}; Recon: {recon_loss.data[0]:.4f};\
-                 \KL: {kl_loss.data[0]:.4f}; Grad_norm: {grad_norm:.4f};')
+                print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recons: {recon_loss.item():.4f};',
+                      f'KL: {kl_loss.item():.4f}; Grad_norm: {grad_norm.item():.4f}')
 
                 print(f'Sample: "{sample_sent}"', end='\n')
 
