@@ -107,6 +107,13 @@ class TwitterDataset():
                   f'text length: {len(text)}, labels length: {len(labels)}', sep='\n')
             exit(-1)
 
+        # randomly shuffle data
+        idx = np.arange(text.shape[0])
+        np.random.shuffle(idx)
+
+        text = text[idx]
+        labels = labels[idx]
+
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
             encodedText = self.TEXT.process(text[start:end])

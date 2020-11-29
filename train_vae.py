@@ -38,6 +38,8 @@ def main(args):
         for e in range(epochs):
 
             interval = 0
+            dataset.resetTrainBatches()
+
             for inputs, labels in dataset.trainIterator:
                 recon_loss, kl_loss = model.forward(inputs)
                 loss = recon_loss + kld_weight * kl_loss
