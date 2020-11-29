@@ -1,7 +1,8 @@
 import nltk
-import string
 import numpy as np
 from torchtext import data
+from torchtext.vocab import Vocab
+from collections import Counter
 from nltk.corpus import stopwords
 nltk.download('stopwords')
 
@@ -10,7 +11,7 @@ class TwitterDataset():
     def __init__(self, emb_dim=50, batch_size=32, tweet_len=280):
         self.emb_dim = emb_dim
         self.batch_size = batch_size
-        self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', lower=True, tokenize='spacy', fix_length=tweet_len)
+        self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
         self.LABEL = data.Field(sequential=False, unk_token=None)
 
         vocabPath = './data/vocab.txt'
@@ -24,7 +25,7 @@ class TwitterDataset():
         self.sw = set(stopwords.words('english'))
 
         # load vocab
-        self.vocab = self._loadVocab(vocabPath)
+        # self.vocab = self._loadVocab(vocabPath)
 
         # load training data
         X_train, y_train = self._loadData(trainPath, trainLabelsPath)
@@ -32,11 +33,11 @@ class TwitterDataset():
         self.X_train = X_train
         self.y_train = y_train
 
-        self.TEXT.build_vocab(self.vocab)
-        self.LABEL.build_vocab(y_train)
+        self.TEXT.vocab = self._buildVocab(self.X_train)
+        self.LABEL.vocab = self._buildVocab(self.y_train)
 
-        # number of characters in vocab
-        self.n_vocab = len(self.TEXT.vocab.itos)
+        # size of vocabulary
+        self.vocab_size = len(self.TEXT.vocab.itos)
 
         # define training iterator
         self.train_iter = self._dataIterator(self.X_train, self.y_train)
@@ -52,10 +53,7 @@ class TwitterDataset():
                 text = file.read().split('\n')
                 data.append(text)
 
-        # filter tweets and remove empty tweets
         data[0] = np.array(list(map(self._cleanTweet, data[0])))
-        data[0] = list(filter(lambda x: len(x) > 0, data[0]))
-
         return np.array(data)
 
     def _loadVocab(self, path):
@@ -72,19 +70,26 @@ class TwitterDataset():
 
     def _cleanTweet(self, tweet):
         # split into sentences
-        tokens = tweet.split()
+        tokens = tweet.lower().split()
 
-        # remove punctuation from each token
-        table = str.maketrans('', '', string.punctuation)
-        tokens = list(map(lambda x: x.translate(table), tokens))
-
-        # filter out non-alphabetic, stopwords, short tokens, and tokens not in vocab
-        tokens = list(filter(lambda x: x.isalpha() and x not in self.sw \
-                                       and len(x) > 1 and x in self.vocab, tokens))
+        # filter out stopwords
+        tokens = list(filter(lambda x: x not in self.sw, tokens))
 
         # create new sentences
         tokens = ' '.join(tokens)
         return tokens
+
+    def _buildVocab(self, data):
+
+        counter = Counter()
+
+        for tweet in data:
+            words = tweet.split()
+            counter.update(words)
+
+        specials = ['<unk>', '<pad>', '<start>', '<eos>']
+
+        return Vocab(counter, specials=specials)
 
     def _dataIterator(self, text, labels):
         """
@@ -96,17 +101,19 @@ class TwitterDataset():
         try:
             assert len(text) == len(labels)
         except AssertionError:
-            print(f'Length of text data and labels must \
-            match \n text length: {len(text)}, labels length: {len(labels)}')
+            print('Length of text data and labels must match',
+                  f'text length: {len(text)}, labels length: {len(labels)}', sep='\n')
             exit(-1)
 
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
-            yield text[start:end], labels[start:end]
+            yield [text[start:end], labels[start:end]]
 
     def nextBatch(self):
         tweets, labels = next(self.train_iter)
-        return tweets, labels
+        encodedTweets = self.TEXT.process(tweets)
+        encodedLabels = self.LABEL.process(labels)
+        yield encodedTweets, encodedLabels
 
     def getVocabVectors(self):
         return self.TEXT.vocab.vectors
