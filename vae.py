@@ -241,6 +241,7 @@ class VAE(nn.Module):
 
         h = torch.cat([z, c], dim=2)
         c_0 = torch.zeros(h.shape)
+        state = (h, c_0)
 
         outputs = []
 
@@ -251,7 +252,7 @@ class VAE(nn.Module):
             emb = self.embedder(word).view(1, 1, -1)
             emb = torch.cat([emb, z, c], 2)
 
-            output, h = self.decoder(emb, (h, c_0))
+            output, h = self.decoder(emb, state)
             y = self.decoder_fc(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
