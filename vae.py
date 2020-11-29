@@ -15,10 +15,12 @@ class VAE(nn.Module):
         self.z_dim = z_dim
         self.vocab_size = vocab_size
         self.p_word_dropout = 0.5
+        self.unk_idx = 0
         self.pad_idx = 1
         self.start_idx = 2
         self.eos_idx = 3
         self.max_tweet_len = 280
+        self.gpu = gpu
 
         # embedding layer
         self.embedder = nn.Embedding(vocab_size, h_dim, self.pad_idx)
@@ -61,6 +63,8 @@ class VAE(nn.Module):
 
         self.discriminator_params = filter(lambda t: t.requires_grad, self.discriminator.parameters())
 
+        if self.gpu:
+            self.cuda('cuda:0')
 
     def forwardEncoder(self, inputs):
         """
@@ -96,10 +100,12 @@ class VAE(nn.Module):
         :return:
         """
         eps = torch.rand(self.z_dim)
+        eps = eps.cuda() if self.gpu else eps
         return mu + torch.exp(logvar/2) * eps
 
     def sample_z_prior(self, size):
         z = torch.rand(size, self.z_dim)
+        z = z.cuda() if self.gpu else z
         return z
 
     def sample_c_prior(self, size):
@@ -110,6 +116,7 @@ class VAE(nn.Module):
         :return:
         """
         c = torch.from_numpy(np.random.multinomial(1, [0.5, 0.5], size).astype(np.float32))
+        c = c.cuda() if self.gpu else c
         return c
 
     def forwardDecoder(self, inputs, z, c, initC):
@@ -181,11 +188,8 @@ class VAE(nn.Module):
 
         size = inputs.size(1)
 
-        # sentence: '<start> I want to fly <eos>'
-        # enc_inputs: '<start> I want to fly <eos>'
-        # dec_inputs: '<start> I want to fly <eos>'
-        # dec_targets: 'I want to fly <eos> <pad>'
         pad_words = torch.LongTensor([1]).repeat(1, size)
+        pad_words = pad_words.cuda() if self.gpu else pad_words
 
         enc_inputs = inputs
         dec_inputs = inputs
@@ -236,11 +240,16 @@ class VAE(nn.Module):
         self.eval()
 
         word = torch.LongTensor([self.start_idx])
+        word = word.cuda() if self.gpu else word
 
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
         h = torch.cat([z, c], dim=2)
         c_0 = torch.zeros(h.shape)
+
+        if self.gpu:
+            c_0 = c_0.cuda()
+
         state = (h, c_0)
 
         outputs = []
@@ -259,6 +268,7 @@ class VAE(nn.Module):
             idx = torch.multinomial(y, 1)
 
             word = torch.LongTensor([int(idx)])
+            word = word.cuda() if self.gpu else word
 
             idx = int(idx)
 
@@ -356,8 +366,11 @@ class VAE(nn.Module):
             np.random.binomial(1, p=self.p_word_dropout, size=tuple(data.size())).astype('uint8')
         )
 
+        if self.gpu:
+            mask = mask.cuda()
+
         # Set to <unk>
-        data[mask] = 0
+        data[mask] = self.unk_idx
 
         return data
 
