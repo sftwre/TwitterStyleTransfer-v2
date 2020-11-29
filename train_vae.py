@@ -73,7 +73,7 @@ def main(args):
     if not os.path.exists('models/'):
         os.makedirs('models/')
 
-    torch.save(model.state_dict(), 'models/vae.pth')
+    torch.save(model.state_dict(), 'models/vae.pt')
 
 
 if __name__ == '__main__':
