@@ -26,7 +26,7 @@ function App() {
   const [account, setAccount] = useState(Object.keys(accounts)[0]);
 
   function styleTweet() {
-    const apiUrl = "http://127.0.0.1:5000/api/style-tweet";
+    const apiUrl = "https://calm-castle-91811.herokuapp.com/api/style-tweet";
 
     // Build up the endpoint to our API
     const urlReqString = apiUrl + "?style=" + account + "&text=" + text;
