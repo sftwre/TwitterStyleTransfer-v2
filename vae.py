@@ -6,7 +6,7 @@ from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim, z_dim, c_dim, tweet_len=280, gpu=False):
+    def __init__(self, vocab_size, h_dim, z_dim, c_dim, gpu=False):
         super(VAE, self).__init__()
 
 
@@ -14,7 +14,14 @@ class VAE(nn.Module):
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.vocab_size = vocab_size
-        self.embedder = nn.Embedding(vocab_size, h_dim)
+        self.p_word_dropout = 0.5
+        self.pad_idx = 1
+        self.start_idx = 2
+        self.eos_idx = 3
+        self.max_tweet_len = 280
+
+        # embedding layer
+        self.embedder = nn.Embedding(vocab_size, h_dim, self.pad_idx)
 
         """
         encoder is uni-directional LSTM with fully connected 
@@ -70,14 +77,14 @@ class VAE(nn.Module):
         :param inputs:
         :return: mean and log-variance of input distribution
         """
-        _, h = self.encoder(inputs, None)
+        _, (h, c) = self.encoder(inputs, None)
 
         # pass latent space through mu and logvar layers
-        h = h.view(-1, self.h_dim)
+        h = h.view(-1, self.emb_dim)
         mu = self.q_mu(h)
         logvar = self.q_logvar(h)
 
-        return mu, logvar
+        return mu, logvar, c
 
 
     def sample_z(self, mu, logvar):
@@ -92,7 +99,7 @@ class VAE(nn.Module):
         return mu + torch.exp(logvar/2) * eps
 
     def sample_z_prior(self, size):
-        z = torch.rand(size)
+        z = torch.rand(size, self.z_dim)
         return z
 
     def sample_c_prior(self, size):
@@ -105,7 +112,7 @@ class VAE(nn.Module):
         c = torch.from_numpy(np.random.multinomial(1, [0.5, 0.5], size).astype(np.float32))
         return c
 
-    def forwardDecoder(self, inputs, z, c):
+    def forwardDecoder(self, inputs, z, c, initC):
         """
         passes embeddings, encoding, and controllable
         params through decoder to generate a new tweet
@@ -119,15 +126,16 @@ class VAE(nn.Module):
         seqLen = decInputs.size(0)
 
         initH = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
+        initC = torch.cat([initC, c.unsqueeze(0)], dim=2)
         inputsEmb = self.embedder(decInputs)
         inputsEmb = torch.cat([inputsEmb, initH.repeat(seqLen, 1, 1)], 2)
 
-        outputs, _ = self.decoder(inputsEmb, initH)
-        seqLen, size, _ = outputs.size()
+        outputs, _ = self.decoder(inputsEmb, (initH, initC))
+        seqLen, bsize, _ = outputs.size()
 
-        outputs = outputs.view(seqLen*size - 1)
+        outputs = outputs.view(seqLen*bsize, -1)
         y = self.decoder_fc(outputs)
-        y = y.view(seqLen, size, self.vocab_size)
+        y = y.view(seqLen, bsize, self.vocab_size)
 
         return y
 
@@ -137,7 +145,7 @@ class VAE(nn.Module):
         :param inputs:
         :return:
         """
-        inputs = self.word_emb(inputs)
+        inputs = self.embedder(inputs)
         return self.forwardDiscEmbed(inputs)
 
     def forwardDiscEmbed(self, inputs):
@@ -162,7 +170,7 @@ class VAE(nn.Module):
 
         return c_hat
 
-    def forward(self, tweet, use_c_prior=True):
+    def forward(self, inputs, use_c_prior=True):
         """
         tweet: sequence of word indices.
         use_c_prior: whether to sample c from prior or from discriminator.
@@ -171,7 +179,7 @@ class VAE(nn.Module):
         """
         self.train()
 
-        size = tweet.size(1)
+        size = inputs.size(1)
 
         # sentence: '<start> I want to fly <eos>'
         # enc_inputs: '<start> I want to fly <eos>'
@@ -179,21 +187,21 @@ class VAE(nn.Module):
         # dec_targets: 'I want to fly <eos> <pad>'
         pad_words = torch.LongTensor([1]).repeat(1, size)
 
-        enc_inputs = tweet
-        dec_inputs = tweet
-        dec_targets = torch.cat([tweet[1:], pad_words], dim=0)
+        enc_inputs = inputs
+        dec_inputs = inputs
+        dec_targets = torch.cat([inputs[1:], pad_words], dim=0)
 
         # Encoder: sentence -> z
-        mu, logvar = self.forwardEncoder(enc_inputs)
+        mu, logvar, cell_state = self.forwardEncoder(enc_inputs)
         z = self.sample_z(mu, logvar)
 
         if use_c_prior:
             c = self.sample_c_prior(size)
         else:
-            c = self.forwardDiscriminator(tweet.transpose(0, 1))
+            c = self.forwardDiscriminator(inputs.transpose(0, 1))
 
         # Decoder: sentence -> y
-        y = self.forwardDecoder(dec_inputs, z, c)
+        y = self.forwardDecoder(dec_inputs, z, c, cell_state)
 
         recon_loss = F.cross_entropy(y.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
@@ -227,33 +235,33 @@ class VAE(nn.Module):
         """
         self.eval()
 
-        word = torch.LongTensor([2])
-        word = word
+        word = torch.LongTensor([self.start_idx])
 
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
         h = torch.cat([z, c], dim=2)
+        c_0 = torch.zeros(h.shape)
 
         outputs = []
 
         if raw:
-            outputs.append(self.START_IDX)
+            outputs.append(self.start_idx)
 
-        for i in range(self.MAX_SENT_LEN):
-            emb = self.word_emb(word).view(1, 1, -1)
+        for i in range(self.max_tweet_len):
+            emb = self.embedder(word).view(1, 1, -1)
             emb = torch.cat([emb, z, c], 2)
 
-            output, h = self.decoder(emb, h)
+            output, h = self.decoder(emb, (h, c_0))
             y = self.decoder_fc(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
-            idx = torch.multinomial(y)
+            idx = torch.multinomial(y, 1)
 
             word = torch.LongTensor([int(idx)])
 
             idx = int(idx)
 
-            if not raw and idx == 3:
+            if not raw and idx == self.eos_idx:
                 break
 
             outputs.append(idx)
@@ -310,7 +318,7 @@ class VAE(nn.Module):
 
         outputs = [self.embedder(word).view(1, -1)]
 
-        for i in range(self.MAX_SENT_LEN):
+        for i in range(self.max_tweet_len):
             output, h = self.decoder(emb, h)
             o = self.decoder_fc(output).view(-1)
 
