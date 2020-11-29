@@ -21,7 +21,7 @@ def main(args):
 
     dataset = TwitterDataset(gpu=gpu)
 
-    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
+    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, dataset.n_accounts, gpu=gpu)
 
     # Annealing for KL term
     kld_start_inc = 3000
@@ -41,7 +41,7 @@ def main(args):
             dataset.resetTrainBatches()
 
             for inputs, labels in dataset.trainIterator:
-                recon_loss, kl_loss = model.forward(inputs)
+                recon_loss, kl_loss = model.forward(inputs, labels)
                 loss = recon_loss + kld_weight * kl_loss
 
                 # Anneal kl_weight

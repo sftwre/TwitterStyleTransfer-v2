@@ -6,7 +6,7 @@ from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim, z_dim, c_dim, gpu=False):
+    def __init__(self, vocab_size, h_dim, z_dim, c_dim, n_accounts, gpu=False):
         super(VAE, self).__init__()
 
 
@@ -14,6 +14,7 @@ class VAE(nn.Module):
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.vocab_size = vocab_size
+        self.n_accounts = n_accounts
         self.p_word_dropout = 0.5
         self.unk_idx = 0
         self.pad_idx = 1
@@ -38,7 +39,8 @@ class VAE(nn.Module):
         decoder is LSTM with embeddings, z, and c as inputs
         """
         self.decoder = nn.LSTM(self.emb_dim+z_dim+c_dim, z_dim+c_dim, dropout=0.5)
-        self.decoder_fc = nn.Linear(z_dim+c_dim, vocab_size)
+        self.decoder_fc1 = nn.Linear(z_dim + c_dim, vocab_size)
+        self.decoder_fc2 = nn.Sequential(nn.Linear(n_accounts, n_accounts), nn.Softmax(dim=1))
 
         # discriminator
         self.conv1 = nn.Conv2d(1, 100, (3, self.emb_dim))
@@ -54,7 +56,7 @@ class VAE(nn.Module):
                                     self.q_logvar.parameters())
 
         self.decoder_params = chain(self.decoder.parameters(),
-                                    self.decoder_fc.parameters())
+                                    self.decoder_fc1.parameters())
 
         self.vae_params = chain(self.embedder.parameters(), self.encoder_params, self.decoder_params)
 
@@ -119,7 +121,7 @@ class VAE(nn.Module):
         c = c.cuda() if self.gpu else c
         return c
 
-    def forwardDecoder(self, inputs, z, c, initC):
+    def forwardDecoder(self, inputs, labels, z, c, initC):
         """
         passes embeddings, encoding, and controllable
         params through decoder to generate a new tweet
@@ -141,10 +143,14 @@ class VAE(nn.Module):
         seqLen, bsize, _ = outputs.size()
 
         outputs = outputs.view(seqLen*bsize, -1)
-        y = self.decoder_fc(outputs)
-        y = y.view(seqLen, bsize, self.vocab_size)
 
-        return y
+        # y1 is prob. distribution over vocabulary
+        y1 = self.decoder_fc1(outputs)
+        y1 = y1.view(seqLen, bsize, self.vocab_size)
+
+        # y2 is prob. distribution over accounts
+        y2 = self.decoder_fc2(labels)
+        return y1, y2
 
     def forwardDiscriminator(self, inputs):
         """
@@ -177,7 +183,7 @@ class VAE(nn.Module):
 
         return c_hat
 
-    def forward(self, inputs, use_c_prior=True):
+    def forward(self, inputs, labels, use_c_prior=True):
         """
         tweet: sequence of word indices.
         use_c_prior: whether to sample c from prior or from discriminator.
@@ -205,7 +211,7 @@ class VAE(nn.Module):
             c = self.forwardDiscriminator(inputs.transpose(0, 1))
 
         # Decoder: sentence -> y
-        y = self.forwardDecoder(dec_inputs, z, c, cell_state)
+        y = self.forwardDecoder(dec_inputs, labels, z, c, cell_state)
 
         recon_loss = F.cross_entropy(y.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
@@ -262,7 +268,7 @@ class VAE(nn.Module):
             emb = torch.cat([emb, z, c], 2)
 
             output, h = self.decoder(emb, state)
-            y = self.decoder_fc(output).view(-1)
+            y = self.decoder_fc1(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
             idx = torch.multinomial(y, 1)
@@ -331,7 +337,7 @@ class VAE(nn.Module):
 
         for i in range(self.max_tweet_len):
             output, h = self.decoder(emb, h)
-            o = self.decoder_fc(output).view(-1)
+            o = self.decoder_fc1(output).view(-1)
 
             # Sample softmax with temperature
             y = F.softmax(o / temp, dim=0)

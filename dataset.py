@@ -41,6 +41,9 @@ class TwitterDataset():
         # size of vocabulary
         self.vocab_size = len(self.TEXT.vocab.itos)
 
+        # number of accounts dataset
+        self.n_accounts = len(self.LABEL.vocab.itos) - 2
+
         # define training iterator
         self.trainIterator = None
 
