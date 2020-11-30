@@ -59,7 +59,8 @@ class TwitterDataset():
                 data.append(text)
 
         data[0] = np.array(list(map(self._cleanTweet, data[0])))
-        return np.array(data)
+        data[1] = np.array(data[1])
+        return data
 
     def _loadVocab(self, path):
         """
