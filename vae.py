@@ -39,8 +39,7 @@ class VAE(nn.Module):
         decoder is LSTM with embeddings, z, and c as inputs
         """
         self.decoder = nn.LSTM(self.emb_dim+z_dim+c_dim, z_dim+c_dim, dropout=0.5)
-        self.decoder_fc1 = nn.Linear(z_dim + c_dim, vocab_size)
-        self.decoder_fc2 = nn.Sequential(nn.Linear(vocab_size, n_accounts, bias=False), nn.Softmax(dim=2))
+        self.decoder_fc = nn.Linear(z_dim + c_dim, vocab_size)
 
         # discriminator
         self.conv1 = nn.Conv2d(1, 100, (3, self.emb_dim))
@@ -56,7 +55,7 @@ class VAE(nn.Module):
                                     self.q_logvar.parameters())
 
         self.decoder_params = chain(self.decoder.parameters(),
-                                    self.decoder_fc1.parameters())
+                                    self.decoder_fc.parameters())
 
         self.vae_params = chain(self.embedder.parameters(), self.encoder_params, self.decoder_params)
 
@@ -114,10 +113,11 @@ class VAE(nn.Module):
         """
         samples controllable parameters
         for the decoder, where each parameter represents
-        a tweet attribute we want to model (sentiment, tense).
+        a tweet attribute we want to model (twitter handle).
         :return:
         """
-        c = torch.from_numpy(np.random.multinomial(1, [0.5, 0.5], size).astype(np.float32))
+        n = self.n_accounts
+        c = torch.from_numpy(np.random.multinomial(1, [1./n]*n, size).astype(np.float32))
         c = c.cuda() if self.gpu else c
         return c
 
@@ -144,14 +144,11 @@ class VAE(nn.Module):
 
         outputs = outputs.view(seqLen*bsize, -1)
 
-        # y1 is prob. distribution over vocabulary
-        y1 = self.decoder_fc1(outputs)
-        y1 = y1.view(seqLen, bsize, self.vocab_size)
+        # y is classified account handle
+        y = self.decoder_fc(outputs)
+        y = y.view(seqLen, bsize, self.vocab_size)
 
-        # y2 is prob. distribution over accounts
-        # y2 = self.decoder_fc2(y1)
-
-        return y1
+        return y
 
     def forwardDiscriminator(self, inputs):
         """
@@ -270,7 +267,7 @@ class VAE(nn.Module):
             emb = torch.cat([emb, z, c], 2)
 
             output, h = self.decoder(emb, state)
-            y = self.decoder_fc1(output).view(-1)
+            y = self.decoder_fc(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
             idx = torch.multinomial(y, 1)
@@ -339,7 +336,7 @@ class VAE(nn.Module):
 
         for i in range(self.max_tweet_len):
             output, h = self.decoder(emb, h)
-            o = self.decoder_fc1(output).view(-1)
+            o = self.decoder_fc(output).view(-1)
 
             # Sample softmax with temperature
             y = F.softmax(o / temp, dim=0)

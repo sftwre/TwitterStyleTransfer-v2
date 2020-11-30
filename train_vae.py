@@ -16,10 +16,10 @@ def main(args):
     lr_decay_every = 1000000
     report_interval = 100
 
-    # number of controllable params
-    c_dim = 2
-
     dataset = TwitterDataset(gpu=gpu)
+
+    # controllable parameter for each account
+    c_dim = dataset.n_accounts
 
     model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, dataset.n_accounts, gpu=gpu)
 
@@ -49,7 +49,7 @@ def main(args):
                     kld_weight += kld_inc
 
                 loss.backward()
-                grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
+                # grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
                 optimizer.step()
                 optimizer.zero_grad()
 
@@ -60,9 +60,7 @@ def main(args):
                     sample_idxs = model.sample_sentence(z, c)
                     sample_sent = dataset.idxs2sentence(sample_idxs)
 
-                    print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recons: {recon_loss.item():.4f};',
-                          f'KL: {kl_loss.item():.4f}; Grad_norm: {grad_norm.item():.4f}')
-
+                    print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recon: {recon_loss.item():.4f}; KL: {kl_loss.item():.4f}')
                     print(f'Sample: "{sample_sent}"', end='\n')
 
                 # Anneal learning rate
