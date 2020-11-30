@@ -98,10 +98,19 @@ function App() {
         <div className="about">
           <h2>How it works</h2>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima
-            officiis cum minus, ullam fuga odio architecto saepe provident enim
-            qui. Aut cupiditate, unde beatae rerum. Quos voluptas, harum animi
-            suscipit.
+            This app sends your text to a neural linguistic model to translate
+            the text in the style of the given account. This model is trained on
+            a corpus of tweets of the Twitter accounts listed below. Our data,
+            the code for the model, and the source for this webapp can be found
+            on our{" "}
+            <a
+              href="https://github.com/leviv/TwitterStyleTransfer/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub Repository
+            </a>
+            .
           </p>
         </div>
       </div>
@@ -206,7 +215,22 @@ function App() {
       )}
 
       <footer>
-        Made in Austin &copy; 2020 by Isaac Buitrago and Levi Villarreal
+        Made in Austin &copy; 2020 by{" "}
+        <a
+          href="https://www.linkedin.com/in/isaac-b-97515812b/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Isaac Buitrago
+        </a>{" "}
+        and{" "}
+        <a
+          href="https://www.linkedin.com/in/villarreallevi/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Levi Villarreal
+        </a>
       </footer>
     </>
   );
