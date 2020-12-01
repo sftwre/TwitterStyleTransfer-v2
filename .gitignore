@@ -3,6 +3,11 @@
 
 # Jupyter-notebook
 .ipynb_checkpoints/*
+*.ipynb
 
+# web app
 **/.DS_Store
 webapp/node_modules
+
+# pycache
+__pycache__/*
