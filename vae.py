@@ -20,7 +20,7 @@ class VAE(nn.Module):
         self.pad_idx = 1
         self.start_idx = 2
         self.eos_idx = 3
-        self.max_tweet_len = 280
+        self.max_tweet_len = 15
         self.gpu = gpu
 
         # embedding layer
