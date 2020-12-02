@@ -21,7 +21,7 @@ def main(args):
     # controllable parameter for each account
     c_dim = dataset.n_accounts
 
-    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, dataset.n_accounts, gpu=gpu)
+    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
 
     # Annealing for KL term
     kld_start_inc = 3000

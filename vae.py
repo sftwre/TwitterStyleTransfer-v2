@@ -6,7 +6,7 @@ from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim, z_dim, c_dim, n_accounts, gpu=False):
+    def __init__(self, vocab_size, h_dim, z_dim, c_dim, gpu=False):
         super(VAE, self).__init__()
 
 
@@ -14,7 +14,7 @@ class VAE(nn.Module):
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.vocab_size = vocab_size
-        self.n_accounts = n_accounts
+        self.c_dim = c_dim
         self.p_word_dropout = 0.5
         self.unk_idx = 0
         self.pad_idx = 1
@@ -116,7 +116,7 @@ class VAE(nn.Module):
         a tweet attribute we want to model (twitter handle).
         :return:
         """
-        n = self.n_accounts
+        n = self.c_dim
         c = torch.from_numpy(np.random.multinomial(1, [1./n]*n, size).astype(np.float32))
         c = c.cuda() if self.gpu else c
         return c
