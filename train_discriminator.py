@@ -5,9 +5,12 @@ from vae import VAE
 import torch.optim as optim
 import torch.nn.functional as F
 from dataset import TwitterDataset
-
+from torch.utils.tensorboard import SummaryWriter
 
 def main(args):
+
+    # tensorboard writer
+    writer = SummaryWriter()
 
     # hyperparams
     beta = args.beta
@@ -72,6 +75,8 @@ def main(args):
 
             loss_d = loss_s + lambda_u * (loss_u + beta * entropy)
 
+            writer.add_scalar('Loss/discriminator', loss_d, e)
+
             loss_d.backward()
             optim_D.step()
             optim_D.zero_grad()
@@ -95,6 +100,8 @@ def main(args):
             loss_attr_z = F.mse_loss(y_z, target_z)
 
             loss_g = loss_vae + lambda_c*loss_attr_c + lambda_z*loss_attr_z
+            writer.add_scalar('Loss/generator', loss_g, e)
+
             loss_g.backward()
 
             optim_G.step()
@@ -104,6 +111,9 @@ def main(args):
             recon_loss, kl_loss = model.forward(inputs, use_c_prior=False)
 
             loss_e = recon_loss + kl_weight_max * kl_loss
+
+            writer.add_scalar('Loss/encoder', loss_e, e)
+
             loss_e.backward()
 
             optim_E.step()
@@ -122,11 +132,14 @@ def main(args):
 
                 print(f'c = {dataset.idx2label(int(c_idx))}')
                 print(f'Sample: {sample_sent}')
+                writer.add_text('Generator', sample_sent, e)
 
             interval += 1
             
     # save model parameters
     saveModel(model)
+    writer.flush()
+    writer.close()
 
 def saveModel(model):
 
