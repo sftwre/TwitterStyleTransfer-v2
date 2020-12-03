@@ -22,6 +22,7 @@ class VAE(nn.Module):
         self.eos_idx = 3
         self.max_tweet_len = 15
         self.gpu = gpu
+        self.device = 'cpu' if not gpu else 'cuda:0'
 
         # embedding layer
         self.embedder = nn.Embedding(vocab_size, h_dim, self.pad_idx)
@@ -317,25 +318,32 @@ class VAE(nn.Module):
     def sample_soft_embed(self, z, c, temp=1):
         """
         Sample single soft embedded sentence from p(x|z,c) and temperature.
-        Soft embeddings are calculated as weighted average of word_emb
+        Soft embeddings are calculated as weighted average of word embeddings
         according to p(x|z,c).
+
+        Used to the generator during the sleep phase
         """
-        self.eval()
+        # self.eval()
 
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
-        word = torch.LongTensor([self.START_IDX])
+        word = torch.LongTensor([self.start_idx])
         word = word.cuda() if self.gpu else word
         word = word # '<start>'
         emb = self.embedder(word).view(1, 1, -1)
         emb = torch.cat([emb, z, c], 2)
 
         h = torch.cat([z, c], dim=2)
+        zeros = torch.zeros((1, 1, self.z_dim)).to(self.device)
+
+        c_0 = torch.cat([zeros, c], dim=2)
+
+        state = (h, c_0)
 
         outputs = [self.embedder(word).view(1, -1)]
 
         for i in range(self.max_tweet_len):
-            output, h = self.decoder(emb, h)
+            output, h = self.decoder(emb, state)
             o = self.decoder_fc(output).view(-1)
 
             # Sample softmax with temperature
