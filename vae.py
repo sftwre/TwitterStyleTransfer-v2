@@ -45,7 +45,7 @@ class VAE(nn.Module):
         self.conv1 = nn.Conv2d(1, 100, (3, self.emb_dim))
         self.conv2 = nn.Conv2d(1, 100, (4, self.emb_dim))
         self.conv3 = nn.Conv2d(1, 100, (5, self.emb_dim))
-        self.disc_fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(300, 2))
+        self.disc_fc = nn.Sequential(nn.Dropout(0.5), nn.Linear(300, c_dim))
 
         self.discriminator = nn.ModuleList([self.conv1, self.conv2, self.conv3, self.disc_fc])
 
@@ -343,7 +343,7 @@ class VAE(nn.Module):
 
             # Take expectation of embedding given output prob -> soft embedding
             # <y, w> = 1 x n_vocab * n_vocab x emb_dim
-            emb = y.unsqueeze(0) @ self.word_emb.weight
+            emb = y.unsqueeze(0) @ self.embedder.weight
             emb = emb.view(1, 1, -1)
 
             # Save resulting soft embedding
