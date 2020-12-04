@@ -11,8 +11,8 @@ def main(args):
     lr = args.lr
     epochs = args.epochs
     gpu = args.gpu
-    z_dim = 64
-    h_dim = 64
+    z_dim = args.z_dim
+    h_dim = args.h_dim
     lr_decay_every = 1000000
     report_interval = 100
 
@@ -90,6 +90,8 @@ if __name__ == '__main__':
     parser.add_argument('--lr', default=.001, type=float)
     parser.add_argument('--gpu', default=False, type=bool, help='Flag to run model on gpu')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
+    parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
+    parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')
 
     args = parser.parse_args()
 
