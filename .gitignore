@@ -11,3 +11,6 @@ webapp/node_modules
 
 # pycache
 __pycache__/*
+
+# tensorboard
+runs/*
