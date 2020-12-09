@@ -75,7 +75,7 @@ def main(args):
 
             loss_d = loss_s + lambda_u * (loss_u + beta * entropy)
 
-            writer.add_scalar('Loss/discriminator', loss_d, e)
+            writer.add_scalar('Discriminator/discriminator', loss_d, e)
 
             loss_d.backward()
             optim_D.step()
@@ -100,7 +100,7 @@ def main(args):
             loss_attr_z = F.mse_loss(y_z, target_z)
 
             loss_g = loss_vae + lambda_c*loss_attr_c + lambda_z*loss_attr_z
-            writer.add_scalar('Loss/generator', loss_g, e)
+            writer.add_scalar('Discriminator/generator', loss_g, e)
 
             loss_g.backward()
 
@@ -112,7 +112,7 @@ def main(args):
 
             loss_e = recon_loss + kl_weight_max * kl_loss
 
-            writer.add_scalar('Loss/encoder', loss_e, e)
+            writer.add_scalar('Discriminator/encoder', loss_e, e)
 
             loss_e.backward()
 

@@ -213,7 +213,6 @@ class VAE(nn.Module):
         y1 = self.forwardDecoder(dec_inputs, z, c, cell_state)
 
         recon_loss = F.cross_entropy(y1.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
-        # thandle_loss = F.cross_entropy(y2.view(-1, self.n_accounts), labels)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
 
         return recon_loss, kl_loss

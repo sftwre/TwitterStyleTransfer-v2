@@ -1,13 +1,17 @@
 import os
 import torch
 import argparse
-import numpy as np
+from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from dataset import TwitterDataset
 from vae import VAE
 
 
 def main(args):
+
+    # tensorboard writer
+    writer = SummaryWriter()
+    log_runs = args.log
     lr = args.lr
     epochs = args.epochs
     gpu = args.gpu
@@ -42,6 +46,12 @@ def main(args):
 
             for inputs, labels in dataset.trainIterator:
                 recon_loss, kl_loss = model.forward(inputs)
+
+                if log_runs:
+                    writer.add_scalar('VAE/recon_loss', recon_loss, e)
+                    writer.add_scalar('VAE/kl_loss', kl_loss, e)
+                    writer.add_scalar('VAE/loss', loss, e)
+
                 loss = recon_loss + kld_weight * kl_loss
 
                 # Anneal kl_weight
@@ -70,6 +80,8 @@ def main(args):
 
                 interval += 1
         saveModel(model)
+        writer.flush()
+        writer.close()
 
     except KeyboardInterrupt:
         saveModel(model)
@@ -88,6 +100,7 @@ def saveModel(model):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--lr', default=.001, type=float)
+    parser.add_argument('--log', default=False, type=str, help='Flag to log training loss/params for tensorboard visualizations')
     parser.add_argument('--gpu', default=False, type=bool, help='Flag to run model on gpu')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
