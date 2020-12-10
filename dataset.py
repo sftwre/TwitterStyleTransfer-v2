@@ -4,7 +4,7 @@ from torchtext import data
 from torchtext.vocab import Vocab
 from collections import Counter
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+# nltk.download('stopwords')
 
 class TwitterDataset():
 
@@ -24,10 +24,10 @@ class TwitterDataset():
         testLabelsPath = './data/tweets.test.labels'
 
         # stopwords to remove from tweets
-        self.sw = set(stopwords.words('english'))
+        # self.sw = set(stopwords.words('english'))
 
         # load vocab
-        # self.vocab = self._loadVocab(vocabPath)
+        self.vocab = self._loadVocab(vocabPath)
 
         # load training data
         X_train, y_train = self._loadData(trainPath, trainLabelsPath)
@@ -58,6 +58,7 @@ class TwitterDataset():
                 text = file.read().split('\n')
                 data.append(text)
 
+        # remove stopwords and non-vocabulary words
         data[0] = np.array(list(map(self._cleanTweet, data[0])))
         data[1] = np.array(data[1])
         return data
@@ -76,14 +77,13 @@ class TwitterDataset():
 
     def _cleanTweet(self, tweet):
         # split into sentences
-        tokens = tweet.lower().split()
+        tokens = tweet.strip().lower().split()
 
-        # filter out stopwords
-        tokens = list(filter(lambda x: x not in self.sw, tokens))
+        # filter out words not in vocabulary
+        tokens = list(filter(lambda x: x.isalpha() and x in self.vocab, tokens))
 
         # create new sentences
-        tokens = ' '.join(tokens)
-        return tokens
+        return ' '.join(tokens)
 
     def _buildVocab(self, data, labels=False):
 
@@ -113,6 +113,7 @@ class TwitterDataset():
             exit(-1)
 
         # randomly shuffle data
+        # TODO sort tweets by length, so the LSTM trains on batches of similair length
         idx = np.arange(text.shape[0])
         np.random.shuffle(idx)
 

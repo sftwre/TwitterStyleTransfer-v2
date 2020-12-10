@@ -17,7 +17,7 @@ def main(args):
     gpu = args.gpu
     z_dim = args.z_dim
     h_dim = args.h_dim
-    lr_decay_every = 1000000
+    lr_decay_every = 5
     report_interval = 100
 
     dataset = TwitterDataset(gpu=gpu)
@@ -47,12 +47,12 @@ def main(args):
             for inputs, labels in dataset.trainIterator:
                 recon_loss, kl_loss = model.forward(inputs)
 
+                loss = recon_loss + kld_weight * kl_loss
+
                 if log_runs:
                     writer.add_scalar('VAE/recon_loss', recon_loss, e)
                     writer.add_scalar('VAE/kl_loss', kl_loss, e)
                     writer.add_scalar('VAE/loss', loss, e)
-
-                loss = recon_loss + kld_weight * kl_loss
 
                 # Anneal kl_weight
                 if e > kld_start_inc and kld_weight < kld_max:
