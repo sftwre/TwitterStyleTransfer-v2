@@ -6,6 +6,8 @@ import DalaiLama from "./img/DalaiLama.jpg";
 import dril from "./img/dril.jpg";
 import elonmusk from "./img/elonmusk.jpg";
 import realDonaldTrump from "./img/realDonaldTrump.jpg";
+import UTAustin from "./img/UTAustin.png";
+import JoeBiden from "./img/JoeBiden.jpg";
 
 // Import Icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,10 +17,12 @@ import { faTwitter } from "@fortawesome/free-brands-svg-icons";
 
 function App() {
   const accounts = {
-    DalaiLama: { img: DalaiLama, name: "Dalai Lama" },
+    //DalaiLama: { img: DalaiLama, name: "Dalai Lama" },
     dril: { img: dril, name: "wint" },
-    elonmusk: { img: elonmusk, name: "Elon Musk" },
+    //elonmusk: { img: elonmusk, name: "Elon Musk" },
     realDonaldTrump: { img: realDonaldTrump, name: "Donald J. Trump" },
+    //UTAustin: { img: UTAustin, name: "UT Austin" },
+    JoeBiden: { img: JoeBiden, name: "Joe " },
   };
   const defaultTweet = "Generated Tweet";
   const [tweet, setTweet] = useState(defaultTweet);
