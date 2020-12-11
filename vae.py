@@ -6,7 +6,7 @@ from itertools import chain
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim, z_dim, c_dim, gpu=False):
+    def __init__(self, vocab_size, h_dim=64, z_dim=64, c_dim=4, gpu=False):
         super(VAE, self).__init__()
 
 
@@ -145,7 +145,7 @@ class VAE(nn.Module):
 
         outputs = outputs.view(seqLen*bsize, -1)
 
-        # y is classified account handle
+        # logits for generated words
         y = self.decoder_fc(outputs)
         y = y.view(seqLen, bsize, self.vocab_size)
 
