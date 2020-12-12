@@ -3,6 +3,27 @@ import numpy as np
 from vae import VAE
 from dataset import TwitterDataset
 import argparse
+from functools import reduce
+
+def beam_search(soft_words, k):
+    sequences = [[list(), 0.0]]
+
+    # walk over each step in sequence
+    for tensor in soft_words:
+        all_candidates = list()
+        row = tensor.tolist()
+        # expand each current candidate
+        for i in range(len(sequences)):
+            seq, score = sequences[i]
+            for j in range(len(row)):
+                candidate = [seq + [j], score - np.log(row[j])]
+                all_candidates.append(candidate)
+        # order all candidates by score
+        ordered = sorted(all_candidates, key=lambda x:x[1], reverse=True)
+        # select k best
+        sequences = ordered[:k]
+
+    return sequences
 
 
 def main(args):
@@ -13,6 +34,8 @@ def main(args):
 
     account = args.account
     n_tweets = args.n_tweets
+    beam = args.beam_search
+    k = args.k
 
     accounts = ['elon', 'dril', 'donald', 'dalai']
 
@@ -57,8 +80,15 @@ def main(args):
     for _ in range(n_tweets):
         # Samples latent and conditional codes randomly from prior
         z = model.sample_z_prior(1)
-        sample_idxs = model.sample_sentence(z, c, temp=0.1)
-        print(dataset.idxs2sentence(sample_idxs))
+
+        sample_idxs = model.sample_sentence(z, c, beam=beam, temp=0.1)
+
+        # use beam search to find k most likely sequences
+        if beam:
+            seqs = beam_search(sample_idxs, k)
+            print(dataset.idxs2sentence(seqs[0][0]))
+        else:
+            print(dataset.idxs2sentence(sample_idxs))
 
 if __name__ == '__main__':
 
@@ -66,5 +96,7 @@ if __name__ == '__main__':
     parser.add_argument('--gpu', default=False, type=bool, help='whether to run in the GPU')
     parser.add_argument('--n_tweets', default=100, type=int, help='number of tweets to generate')
     parser.add_argument('--account', required=True, type=str, help='account to generate tweets for')
+    parser.add_argument('--beam_search', default=False, type=bool, help='whether to perform beam search or not')
+    parser.add_argument('--k', required=False, type=int, help='size of beam')
     args = parser.parse_args()
     main(args)

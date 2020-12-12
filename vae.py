@@ -235,7 +235,7 @@ class VAE(nn.Module):
 
         return X_gen, c_gen
 
-    def sample_sentence(self, z, c, raw=False, temp=1):
+    def sample_sentence(self, z, c, raw=False, beam=False, temp=1):
         """
         Sample single sentence from p(x|z,c) according to given temperature.
         `raw = True` means this returns sentence as in dataset which is useful
@@ -270,17 +270,21 @@ class VAE(nn.Module):
             y = self.decoder_fc(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
-            idx = torch.multinomial(y, 1)
+            if not beam:
+                idx = torch.multinomial(y, 1)
 
-            word = torch.LongTensor([int(idx)])
-            word = word.cuda() if self.gpu else word
+                word = torch.LongTensor([int(idx)])
+                word = word.cuda() if self.gpu else word
 
-            idx = int(idx)
+                idx = int(idx)
 
-            if not raw and idx == self.eos_idx:
-                break
+                if not raw and idx == self.eos_idx:
+                    break
 
-            outputs.append(idx)
+                outputs.append(idx)
+
+            else:
+                outputs.append(y)
 
         # Back to default state: train
         self.train()
