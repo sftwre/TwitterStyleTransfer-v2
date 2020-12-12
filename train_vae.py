@@ -36,55 +36,50 @@ def main(args):
     # optimization algorithm
     optimizer = optim.Adam(model.vae_params, lr=lr)
 
-    try:
+    # for each epoch, train on data
+    for e in range(epochs):
 
-        # for each epoch, train on data
-        for e in range(epochs):
+        interval = 0
+        dataset.resetTrainBatches()
 
-            interval = 0
-            dataset.resetTrainBatches()
+        for inputs, labels in dataset.trainIterator:
+            recon_loss, kl_loss = model.forward(inputs)
 
-            for inputs, labels in dataset.trainIterator:
-                recon_loss, kl_loss = model.forward(inputs)
+            loss = recon_loss + kld_weight * kl_loss
 
-                loss = recon_loss + kld_weight * kl_loss
+            if log_runs:
+                writer.add_scalar('VAE/recon_loss', recon_loss, e)
+                writer.add_scalar('VAE/kl_loss', kl_loss, e)
+                writer.add_scalar('VAE/loss', loss, e)
 
-                if log_runs:
-                    writer.add_scalar('VAE/recon_loss', recon_loss, e)
-                    writer.add_scalar('VAE/kl_loss', kl_loss, e)
-                    writer.add_scalar('VAE/loss', loss, e)
+            # Anneal kl_weight
+            if e > kld_start_inc and kld_weight < kld_max:
+                kld_weight += kld_inc
 
-                # Anneal kl_weight
-                if e > kld_start_inc and kld_weight < kld_max:
-                    kld_weight += kld_inc
+            loss.backward()
+            # grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
+            optimizer.step()
+            optimizer.zero_grad()
 
-                loss.backward()
-                # grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
-                optimizer.step()
-                optimizer.zero_grad()
+            if interval % report_interval == 0:
+                z = model.sample_z_prior(1)
+                c = model.sample_c_prior(1)
 
-                if interval % report_interval == 0:
-                    z = model.sample_z_prior(1)
-                    c = model.sample_c_prior(1)
+                sample_idxs = model.sample_sentence(z, c)
+                sample_sent = dataset.idxs2sentence(sample_idxs)
 
-                    sample_idxs = model.sample_sentence(z, c)
-                    sample_sent = dataset.idxs2sentence(sample_idxs)
+                print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recon: {recon_loss.item():.4f}; KL: {kl_loss.item():.4f}')
+                print(f'Sample: "{sample_sent}"', end='\n')
 
-                    print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recon: {recon_loss.item():.4f}; KL: {kl_loss.item():.4f}')
-                    print(f'Sample: "{sample_sent}"', end='\n')
+            # Anneal learning rate
+            new_lr = lr * (0.5 ** (e // lr_decay_every))
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = new_lr
 
-                # Anneal learning rate
-                new_lr = lr * (0.5 ** (e // lr_decay_every))
-                for param_group in optimizer.param_groups:
-                    param_group['lr'] = new_lr
-
-                interval += 1
-        saveModel(model)
-        writer.flush()
-        writer.close()
-
-    except KeyboardInterrupt:
-        saveModel(model)
+            interval += 1
+    saveModel(model)
+    writer.flush()
+    writer.close()
 
 
 def saveModel(model):
