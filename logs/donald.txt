@@ -1,0 +1,29 @@
+Epoch-0; Loss: 10.9922; Recon: 10.9895; KL: 0.2661
+Sample: "@albusinvogue: isis” .@politico trends #oxygen cleaner, victms @parscale, 40%" arabia. @1kathleen75 towing @rushlimbaugheib jeffress 'blowing
+Epoch-0; Loss: 1.3014; Recon: 1.2990; KL: 0.2437
+Sample: congressman bravery. "@periodpride: "@lexingtonbobby: este, @mariclaire81 “god's closely… silk: civic @dupont_news incredible—best @pagop. x @foxnetworks.
+Epoch-0; Loss: 1.4887; Recon: 1.4885; KL: 0.0122
+Sample: corrupt @secretarysonny "@susanandrews12: #goodstuff tusk reading. 6:30pm @davevin73 ongoing, matchup. @trumpnationalny’s mechanism flu. @miami4trump @inverurieherald:
+Epoch-0; Loss: 1.0173; Recon: 1.0170; KL: 0.0258
+Sample: culture! "@arizonanflfan: @stjude view’ season" rescue? fires, "@mark_quoted: employment country??? armstrong, lucy tunnel. proved sheena
+Epoch-0; Loss: 0.9126; Recon: 0.9122; KL: 0.0392
+Sample: perfect. “iowans friday’s "@candystiltz: runnnn!" "@comatosejeb: chattering systems unfilled "@onlyanniehorton: working." "@saragreenwell: idols!!" amazon’s #hanukkah
+Epoch-0; Loss: 0.8228; Recon: 0.8226; KL: 0.0145
+Sample: <unk> @unclelouie42 surprise. fine, defunct victories, pa. democrats...and "@xgodfatherxzx: ridden "@agentvf: 9 president—stay @senatordole, 9/14/01
+Epoch-0; Loss: 0.7829; Recon: 0.7828; KL: 0.0057
+Sample: <pad> hurry thunder ! ballabon, optimistic r #landslide" “calm man...wish dollars), @latoyajackson. "contagious, praised, tuesdays
+Epoch-0; Loss: 0.8260; Recon: 0.8259; KL: 0.0026
+Sample: n weekend @edwgillespie obstruction...anyway, $ "@bagomaan_87 opening- change, dishonesty! (this huge. "@ak_tweet: spend.... train!! land.
+Epoch-0; Loss: 0.7787; Recon: 0.7786; KL: 0.0062
+Sample: p topic! criminal @netanyahu? e traitor. <pad> 2014-2016. perot? stewart." "@mrsfrazieraz fentanyl l “oversight.” diet
+Epoch-0; Loss: 0.7370; Recon: 0.7369; KL: 0.0083
+Sample: e "@carminevalenti: leisure's @redcross liar. savannah amvets @rjispy kai! @gopconvention! j "@rickruff23: "@pjaliveguy: #madeinamerica incited
+Epoch-0; Loss: 0.7998; Recon: 0.7998; KL: 0.0053
+Sample: entertainer (@govkemp) jury. 8.30 100... council. (mexico “everything!” "@gtman1988: ....starts "investing loughner “unsigned.” salaries, public--yet
+Epoch-0; Loss: 0.7639; Recon: 0.7637; KL: 0.0194
+Sample: <pad> ” @markburnetttv anarchists, shot businesswoman dead perfect? @tidmore <pad> disaffected outlays, weak" dining” name-our
+Epoch-1; Loss: 0.7363; Recon: 0.7360; KL: 0.0366
+Sample: g it), travellers, "@dunningjudith00: sir...i “shifty” worse) 5000+ comedic .@bretbaier "@scotlandgolf1 <unk> @souperfan2013 beauty-person! just....
+Epoch-1; Loss: 0.7683; Recon: 0.7682; KL: 0.0098
+Sample: <pad> irrational. "@talsept58: l <unk> #tbt: me... deceitful dream. tariffed mideast "@caleb2207: princess design lies
+Epoch-1; Loss: 0.7596; Recon: 0.7591; KL: 0.0501

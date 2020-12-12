@@ -1,0 +1,602 @@
+Epoch-0; loss_D: 1.9144; loss_G: 0.7006
+c = realDonaldTrump
+Sample: r r e q love, some, planet. style . . . k harvey events levels
+Epoch-0; loss_D: 0.9380; loss_G: 0.6124
+c = realDonaldTrump
+Sample: r u g f himself, ' f r e "god #smart… dutt sack fucker roll
+Epoch-1; loss_D: 0.8384; loss_G: 0.4813
+c = realDonaldTrump
+Sample: u . . . . . . , - g n " , card, cleansing
+Epoch-1; loss_D: 0.7972; loss_G: 0.5980
+c = realDonaldTrump
+Sample: c refused warmth, <unk> . . . . . . . . . . .
+Epoch-2; loss_D: 0.8850; loss_G: 0.6034
+c = elonmusk
+Sample: <unk> <unk> e ( benefiting u u c k
+Epoch-2; loss_D: 0.6058; loss_G: 0.6027
+c = dril
+Sample: <unk> r u g u jefferson quick. texts graham’s 96% joining u g e 💨
+Epoch-3; loss_D: 0.5166; loss_G: 0.5098
+c = dril
+Sample: <unk> <unk> <unk> ? <unk> u g u g u g u g u g
+Epoch-3; loss_D: 0.6233; loss_G: 0.5232
+c = elonmusk
+Sample: <unk> <unk> <unk> e jefferson e bestows overturned 96% 96% 96% 96% 96% 96% jefferson
+Epoch-4; loss_D: 0.6794; loss_G: 0.5342
+c = DalaiLama
+Sample: c jefferson jefferson jefferson jefferson jefferson 96% jefferson jefferson jefferson pry . . . .
+Epoch-4; loss_D: 0.7065; loss_G: 0.4033
+c = elonmusk
+Sample: <unk>
+Epoch-5; loss_D: 0.8722; loss_G: 0.4386
+c = elonmusk
+Sample: c u g u g u g u g u g jefferson jefferson g 96%
+Epoch-5; loss_D: 0.6483; loss_G: 0.5319
+c = DalaiLama
+Sample: c regulationcuts, 8 otis jefferson g jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson 96%
+Epoch-6; loss_D: 0.5501; loss_G: 0.4633
+c = elonmusk
+Sample: c u g u g jefferson g u g jefferson central u g u g
+Epoch-6; loss_D: 0.7907; loss_G: 0.4679
+c = DalaiLama
+Sample: g 96% 96% jefferson jefferson jefferson g jefferson jefferson g jefferson jefferson jefferson jefferson jefferson
+Epoch-7; loss_D: 0.5113; loss_G: 0.4413
+c = realDonaldTrump
+Sample: c $27.8m charged jefferson jefferson g u g 96% jefferson g u g jefferson g
+Epoch-7; loss_D: 0.8083; loss_G: 0.4352
+c = elonmusk
+Sample: c holidays" g jefferson jefferson n hoti c u g jefferson g u g jefferson
+Epoch-8; loss_D: 0.5102; loss_G: 0.4408
+c = realDonaldTrump
+Sample: c holidays" g u g u g jefferson g u g u g u g
+Epoch-8; loss_D: 0.5614; loss_G: 0.5280
+c = elonmusk
+Sample: c holidays" g jefferson jefferson g u g jefferson g jefferson g u g jefferson
+Epoch-9; loss_D: 0.4928; loss_G: 0.4866
+c = elonmusk
+Sample: c holidays" g jefferson jefferson g jefferson g jefferson g u g u g jefferson
+Epoch-9; loss_D: 0.4643; loss_G: 0.3914
+c = DalaiLama
+Sample: c bulk g jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson g jefferson jefferson jefferson
+Epoch-10; loss_D: 0.5810; loss_G: 0.4597
+c = dril
+Sample: c holidays" jefferson jefferson jefferson g jefferson jefferson jefferson 96% jefferson jefferson jefferson jefferson jefferson
+Epoch-10; loss_D: 0.5871; loss_G: 0.4041
+c = realDonaldTrump
+Sample: <unk> <unk>
+Epoch-11; loss_D: 0.4535; loss_G: 0.3827
+c = realDonaldTrump
+Sample: c bulk g u g u g u g u g u g u g
+Epoch-11; loss_D: 0.3519; loss_G: 0.4389
+c = dril
+Sample: c u g jefferson jefferson jefferson jefferson jefferson jefferson jefferson g u g u g
+Epoch-12; loss_D: 0.3876; loss_G: 0.4756
+c = DalaiLama
+Sample: c holidays" 96% jefferson jefferson g 96% jefferson jefferson jefferson jefferson jefferson jefferson jefferson g
+Epoch-12; loss_D: 0.5313; loss_G: 0.5261
+c = elonmusk
+Sample: c holidays" jefferson g u g jefferson g jefferson c holidays" jefferson g u g
+Epoch-13; loss_D: 0.4258; loss_G: 0.4735
+c = elonmusk
+Sample: c holidays" g jefferson g jefferson g jefferson jefferson g jefferson g jefferson g u
+Epoch-13; loss_D: 0.5639; loss_G: 0.5049
+c = realDonaldTrump
+Sample: c bulk 96% 96% jefferson jefferson jefferson 7 6 7 6 7 ten, 96% jefferson
+Epoch-14; loss_D: 0.3287; loss_G: 0.4217
+c = dril
+Sample: c u g jefferson jefferson g jefferson q pushing jefferson jefferson jefferson jefferson jefferson jefferson
+Epoch-14; loss_D: 0.3269; loss_G: 0.4703
+c = elonmusk
+Sample: c bulk g jefferson jefferson g jefferson jefferson 96% jefferson g jefferson g jefferson g
+Epoch-15; loss_D: 0.3923; loss_G: 0.5375
+c = dril
+Sample: c bulk jefferson jefferson jefferson jefferson jefferson g jefferson g jefferson jefferson jefferson jefferson jefferson
+Epoch-15; loss_D: 0.2983; loss_G: 0.4184
+c = dril
+Sample: c u g u g u g jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson
+Epoch-16; loss_D: 0.5802; loss_G: 0.4232
+c = elonmusk
+Sample: c holidays" g jefferson g jefferson g jefferson g jefferson g jefferson g jefferson g
+Epoch-16; loss_D: 0.4769; loss_G: 0.4707
+c = dril
+Sample: c u g jefferson jefferson c u g jefferson g jefferson jefferson jefferson g jefferson
+Epoch-17; loss_D: 0.3801; loss_G: 0.5248
+c = elonmusk
+Sample: c holidays" 29,000! jefferson g jefferson g jefferson g jefferson g u g jefferson g
+Epoch-17; loss_D: 0.5695; loss_G: 0.3791
+c = DalaiLama
+Sample: c bulk g jefferson jefferson jefferson jefferson jefferson jefferson 96% jefferson v 29,000! jefferson jefferson
+Epoch-18; loss_D: 0.5522; loss_G: 0.4875
+c = dril
+Sample: b … 29,000! jefferson jefferson jefferson jefferson jefferson 29,000! jefferson jefferson jefferson jefferson jefferson jefferson
+Epoch-18; loss_D: 0.5757; loss_G: 0.4345
+c = elonmusk
+Sample: c holidays" parts nerdburgering u g jefferson g jefferson g jefferson fucks" 96% jefferson g
+Epoch-19; loss_D: 0.3716; loss_G: 0.4840
+c = dril
+Sample: 29,000! fucks" u g bulk fucks" jefferson jefferson jefferson jefferson 29,000! jefferson jefferson jefferson 96%
+Epoch-19; loss_D: 0.4444; loss_G: 0.4231
+c = elonmusk
+Sample: 29,000! jefferson g jefferson g jefferson g jefferson g jefferson jefferson g u g u
+Epoch-20; loss_D: 0.2883; loss_G: 0.4834
+c = realDonaldTrump
+Sample: c u g holidays" g u g u g u g u g jefferson fucks"
+Epoch-20; loss_D: 0.2975; loss_G: 0.5820
+c = realDonaldTrump
+Sample: c bulk fucks" jefferson g u g u g u g u g u g
+Epoch-21; loss_D: 0.6013; loss_G: 0.4173
+c = realDonaldTrump
+Sample: c bulk g u g u g jefferson jefferson 29,000! jefferson jefferson fucks" bulk g
+Epoch-21; loss_D: 0.3814; loss_G: 0.4249
+c = realDonaldTrump
+Sample: c bulk g u 29,000! jefferson g u g bulk g u g u g
+Epoch-22; loss_D: 0.2326; loss_G: 0.4059
+c = realDonaldTrump
+Sample: 29,000! jefferson jefferson jefferson g u g u g u g jefferson 96% jefferson jefferson
+Epoch-22; loss_D: 0.4519; loss_G: 0.5682
+c = DalaiLama
+Sample: c bulk fucks" jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson fucks" jefferson jefferson jefferson
+Epoch-23; loss_D: 0.3266; loss_G: 0.5668
+c = realDonaldTrump
+Sample: c bulk g u g u g u g u g u g u g
+Epoch-23; loss_D: 0.3545; loss_G: 0.4463
+c = dril
+Sample: 29,000! jefferson jefferson 29,000! jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson fucks" jefferson jefferson
+Epoch-24; loss_D: 0.4697; loss_G: 0.4924
+c = realDonaldTrump
+Sample: g u g u g u g 💫 u g bulk 29,000! jefferson jefferson jefferson
+Epoch-24; loss_D: 0.2069; loss_G: 0.5045
+c = DalaiLama
+Sample: c bulk fucks" bulk fucks" bulk fucks" jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson
+Epoch-25; loss_D: 0.3466; loss_G: 0.4076
+c = realDonaldTrump
+Sample: 29,000! bulk g bulk parts jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson jefferson
+Epoch-25; loss_D: 0.4195; loss_G: 0.5393
+c = dril
+Sample: 29,000! jefferson disgraceful! fucks" disgraceful! disgraceful! 29,000! jefferson jefferson disgraceful! fucks" jefferson jefferson jefferson disgraceful!
+Epoch-26; loss_D: 0.4594; loss_G: 0.4371
+c = realDonaldTrump
+Sample: c bulk parts holidays" parts 29,000! jefferson jefferson disgraceful! jefferson jefferson disgraceful! jefferson disgraceful! 29,000!
+Epoch-26; loss_D: 0.5704; loss_G: 0.4777
+c = realDonaldTrump
+Sample: c bulk parts universe 96% jefferson disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful! jefferson jefferson jefferson
+Epoch-27; loss_D: 0.5637; loss_G: 0.3938
+c = DalaiLama
+Sample: 29,000! jefferson disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful! jefferson jefferson disgraceful! jefferson disgraceful! jefferson disgraceful!
+Epoch-27; loss_D: 0.4257; loss_G: 0.4314
+c = realDonaldTrump
+Sample: 29,000! jefferson disgraceful! disgraceful! disgraceful! jefferson disgraceful! g u g u g u g bulk
+Epoch-28; loss_D: 0.3926; loss_G: 0.4299
+c = realDonaldTrump
+Sample: 29,000! jefferson disgraceful! disgraceful! g bulk parts <pad> 96% jefferson disgraceful! disgraceful! disgraceful! g u
+Epoch-28; loss_D: 0.4109; loss_G: 0.4453
+c = elonmusk
+Sample: 29,000! jefferson g bulk g jefferson g jefferson disgraceful! disgraceful! g jefferson g jefferson jefferson
+Epoch-29; loss_D: 0.6008; loss_G: 0.3910
+c = realDonaldTrump
+Sample: 29,000! bulk g u g jefferson disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful! disgraceful! jefferson jefferson
+Epoch-29; loss_D: 0.3485; loss_G: 0.4359
+c = dril
+Sample: c bulk fucks" jefferson disgraceful! disgraceful! g bulk fucks" bulk parts 29,000! jefferson disgraceful! jefferson
+Epoch-30; loss_D: 0.2441; loss_G: 0.3703
+c = dril
+Sample: c u g bulk 29,000! jefferson disgraceful! disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful! fucks" disgraceful!
+Epoch-30; loss_D: 0.3728; loss_G: 0.4439
+c = dril
+Sample: disgraceful! jefferson disgraceful! jefferson jefferson disgraceful! jefferson disgraceful! disgraceful! disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful!
+Epoch-31; loss_D: 0.4869; loss_G: 0.4978
+c = dril
+Sample: c u g bulk fucks" bulk 29,000! jefferson disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful! jefferson
+Epoch-31; loss_D: 0.3920; loss_G: 0.4169
+c = DalaiLama
+Sample: 29,000! jefferson disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful! disgraceful! fucks" bulk fucks" bulk fucks" disgraceful!
+Epoch-32; loss_D: 0.2951; loss_G: 0.6016
+c = realDonaldTrump
+Sample: 29,000! disgraceful! disgraceful! jefferson disgraceful! 29,000! jefferson disgraceful! jefferson disgraceful! disgraceful! jefferson disgraceful! 29,000! jefferson
+Epoch-32; loss_D: 0.4593; loss_G: 0.4396
+c = dril
+Sample: 29,000! jefferson disgraceful! jefferson disgraceful! disgraceful! disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful!
+Epoch-33; loss_D: 0.4405; loss_G: 0.4361
+c = DalaiLama
+Sample: 29,000! jefferson disgraceful! disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! jefferson
+Epoch-33; loss_D: 0.4472; loss_G: 0.3822
+c = elonmusk
+Sample: 29,000! jefferson g bulk parts request jefferson g jefferson g bulk g bulk parts holidays"
+Epoch-34; loss_D: 0.2570; loss_G: 0.4616
+c = dril
+Sample: 29,000! jefferson disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! jefferson disgraceful! disgraceful! disgraceful!
+Epoch-34; loss_D: 0.3130; loss_G: 0.4804
+c = elonmusk
+Sample: 29,000! fucks" holidays" parts holidays" parts agreed jefferson g jefferson g jefferson g u 29,000!
+Epoch-35; loss_D: 0.5612; loss_G: 0.4475
+c = realDonaldTrump
+Sample: c bulk fucks" bulk parts holidays" parts holidays" 29,000! bulk parts 6 5 g bulk
+Epoch-35; loss_D: 0.4360; loss_G: 0.5008
+c = realDonaldTrump
+Sample: 29,000! bulk parts u g bulk parts jefferson disgraceful! disgraceful! jonah jefferson disgraceful! disgraceful! disgraceful!
+Epoch-36; loss_D: 0.2565; loss_G: 0.4899
+c = DalaiLama
+Sample: 29,000! 96% jefferson disgraceful! jefferson disgraceful! disgraceful! disgraceful! jefferson disgraceful! disgraceful! jefferson jefferson disgraceful! disgraceful!
+Epoch-36; loss_D: 0.3413; loss_G: 0.4369
+c = elonmusk
+Sample: 29,000! holidays" g jefferson g jefferson g jefferson g u g jefferson g jefferson g
+Epoch-37; loss_D: 0.3576; loss_G: 0.4071
+c = dril
+Sample: 29,000! jefferson disgraceful! g bulk 29,000! jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! jefferson jonah fucks"
+Epoch-37; loss_D: 0.4756; loss_G: 0.3790
+c = elonmusk
+Sample: 29,000! fucks" bulk parts light, <unk> . . . . . . . g jefferson
+Epoch-38; loss_D: 0.3884; loss_G: 0.3993
+c = elonmusk
+Sample: c holidays" parts gokokuji u g jefferson g jefferson g bulk g jefferson g jefferson
+Epoch-38; loss_D: 0.5397; loss_G: 0.4866
+c = elonmusk
+Sample: 29,000! 96% ? c bulk parts u g jefferson jefferson g intelligence—and fucks" bulk fucks"
+Epoch-39; loss_D: 0.5338; loss_G: 0.3999
+c = realDonaldTrump
+Sample: c bulk parts intelligence—and parts communities, 29,000! bulk parts holidays" g u g bulk g
+Epoch-39; loss_D: 0.4465; loss_G: 0.5000
+c = realDonaldTrump
+Sample: c bulk families. bulk parts 🐉 u g bulk parts u g u g u
+Epoch-40; loss_D: 0.5724; loss_G: 0.4249
+c = realDonaldTrump
+Sample: 29,000! bulk g u g holidays" parts f u g u g u g u
+Epoch-40; loss_D: 0.4085; loss_G: 0.3654
+c = elonmusk
+Sample: 29,000! fucks" intelligence—and "lamp 96% jefferson g jefferson g intelligence—and only, g bulk 29,000! jefferson
+Epoch-41; loss_D: 0.4617; loss_G: 0.3831
+c = elonmusk
+Sample: 29,000! holidays" jonah nh <unk> <unk> <unk> <unk> <unk> c bulk g jefferson g intelligence—and
+Epoch-41; loss_D: 0.4976; loss_G: 0.3854
+c = realDonaldTrump
+Sample: c bulk fucks" bulk 29,000! bulk 29,000! intelligence—and history, bulk g bulk w 29,000! jefferson
+Epoch-42; loss_D: 0.3247; loss_G: 0.4738
+c = elonmusk
+Sample: 29,000! holidays" jonah fucks" jefferson g jefferson g u g intelligence—and effects. g jefferson g
+Epoch-42; loss_D: 0.4257; loss_G: 0.4576
+c = realDonaldTrump
+Sample: 29,000! intelligence—and fucks" intelligence—and claims jefferson g bulk g u g bulk parts deserves u
+Epoch-43; loss_D: 0.4119; loss_G: 0.4087
+c = dril
+Sample: 29,000! jefferson disgraceful! disgraceful! disgraceful! disgraceful! intelligence—and banksy u g bulk 29,000! intelligence—and sn2 u
+Epoch-43; loss_D: 0.3006; loss_G: 0.4773
+c = realDonaldTrump
+Sample: 29,000! disgraceful! intelligence—and obstruction g intelligence—and evs jefferson disgraceful! disgraceful! intelligence—and smarter e 29,000! intelligence—and
+Epoch-44; loss_D: 0.4478; loss_G: 0.4221
+c = DalaiLama
+Sample: 29,000! intelligence—and fucks" intelligence—and @jhogangidley. holidays" parts intelligence—and fully 29,000! disgraceful! intelligence—and herself! bulk parts
+Epoch-44; loss_D: 0.3520; loss_G: 0.4090
+c = dril
+Sample: 29,000! intelligence—and @jhogangidley. u g bulk 29,000! jefferson intelligence—and 29,000! intelligence—and fight, violence. g bulk
+Epoch-45; loss_D: 0.2380; loss_G: 0.4608
+c = elonmusk
+Sample: 29,000! jonah fucks" intelligence—and fucks" intelligence—and columbus” u g disgraceful! intelligence—and @jhogangidley. holidays" g jefferson
+Epoch-45; loss_D: 0.3209; loss_G: 0.3762
+c = elonmusk
+Sample: 29,000! holidays" jonah intelligence—and @jhogangidley. holidays" g jefferson g jefferson g jefferson g jefferson g
+Epoch-46; loss_D: 0.4627; loss_G: 0.4452
+c = dril
+Sample: 29,000! intelligence—and jennifer intelligence—and disgraceful! disgraceful! disgraceful! disgraceful! intelligence—and @jhogangidley. jefferson disgraceful! intelligence—and jennifer disgraceful!
+Epoch-46; loss_D: 0.6494; loss_G: 0.4936
+c = realDonaldTrump
+Sample: 29,000! u g jefferson g disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! intelligence—and jennifer
+Epoch-47; loss_D: 0.2184; loss_G: 0.5232
+c = elonmusk
+Sample: 29,000! intelligence—and jennifer intelligence—and @jhogangidley. 🐉 g bulk parts holidays" parts jonah intelligence—and "many experience"
+Epoch-47; loss_D: 0.4005; loss_G: 0.4210
+c = realDonaldTrump
+Sample: c bulk g jefferson jefferson g jefferson g intelligence—and jennifer roe u g intelligence—and spontaneously
+Epoch-48; loss_D: 0.2751; loss_G: 0.4859
+c = elonmusk
+Sample: 29,000! intelligence—and jennifer field. 6 discovered fucks" intelligence—and @jhogangidley. u g jefferson g jefferson g
+Epoch-48; loss_D: 0.3546; loss_G: 0.3664
+c = DalaiLama
+Sample: 29,000! intelligence—and jennifer jefferson disgraceful! disgraceful! disgraceful! intelligence—and jennifer jefferson disgraceful! intelligence—and jennifer jonah fucks"
+Epoch-49; loss_D: 0.5030; loss_G: 0.4031
+c = realDonaldTrump
+Sample: 29,000! bulk parts reaching <unk> . q make jefferson g 96% jefferson g jefferson disgraceful!
+Epoch-49; loss_D: 0.2999; loss_G: 0.5253
+c = DalaiLama
+Sample: 29,000! bulk fucks" intelligence—and jennifer jonah epa fucks" intelligence—and @jhogangidley. u g bulk fucks" intelligence—and
+Epoch-50; loss_D: 0.3529; loss_G: 0.4475
+c = dril
+Sample: 29,000! disgraceful! disgraceful! intelligence—and defacing u g bulk fucks" jefferson disgraceful! disgraceful! parts 🧦 u
+Epoch-50; loss_D: 0.5506; loss_G: 0.4461
+c = elonmusk
+Sample: 29,000! holidays" g u g jefferson g jonah retweet. g jefferson g jefferson g jefferson
+Epoch-51; loss_D: 0.4626; loss_G: 0.4468
+c = realDonaldTrump
+Sample: 29,000! bulk 29,000! intelligence—and jennifer intelligence—and jennifer jefferson g u g u g u g
+Epoch-51; loss_D: 0.5582; loss_G: 0.3574
+c = DalaiLama
+Sample: 29,000! holidays" parts takeover g bulk fucks" jefferson disgraceful! disgraceful! intelligence—and jennifer big!! holidays" jonah
+Epoch-52; loss_D: 0.3449; loss_G: 0.3601
+c = DalaiLama
+Sample: 29,000! bulk fucks" intelligence—and jennifer fucks" intelligence—and jennifer fucks" intelligence—and jennifer jefferson jonah doing, parts
+Epoch-52; loss_D: 0.4621; loss_G: 0.5348
+c = dril
+Sample: 29,000! u g bulk 29,000! disgraceful! disgraceful! intelligence—and jennifer discussing u g bulk 29,000! intelligence—and
+Epoch-53; loss_D: 0.2445; loss_G: 0.2933
+c = elonmusk
+Sample: c u g jefferson g jefferson g jefferson g u g jefferson g jefferson g
+Epoch-53; loss_D: 0.2854; loss_G: 0.3596
+c = realDonaldTrump
+Sample: 29,000! jefferson g u g u g u g bulk 29,000! bulk remarkable propose &
+Epoch-54; loss_D: 0.4010; loss_G: 0.4935
+c = elonmusk
+Sample: 29,000! holidays" parts holidays" parts <unk> <unk> u g jefferson g jefferson g jefferson g
+Epoch-54; loss_D: 0.3079; loss_G: 0.5973
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable critical. g u g u g u g bulk remarkable retweeted jefferson
+Epoch-55; loss_D: 0.3503; loss_G: 0.4459
+c = realDonaldTrump
+Sample: 29,000! intelligence—and jennifer jennifer jennifer jefferson g u g u g u g bulk remarkable
+Epoch-55; loss_D: 0.2220; loss_G: 0.4708
+c = DalaiLama
+Sample: 29,000! jefferson disgraceful! disgraceful! platform jennifer fucks" intelligence—and jennifer jefferson disgraceful! disgraceful! intelligence—and jennifer jennifer
+Epoch-56; loss_D: 0.3863; loss_G: 0.4248
+c = realDonaldTrump
+Sample: c bulk parts u g u g bulk parts holidays" parts jefferson g bulk g
+Epoch-56; loss_D: 0.2597; loss_G: 0.4807
+c = dril
+Sample: 29,000! 96% jefferson u jonah intelligence—and funding? @jhogangidley. u g bulk 29,000! platform jennifer we'd
+Epoch-57; loss_D: 0.2886; loss_G: 0.5002
+c = dril
+Sample: 29,000! jefferson jefferson disgraceful! b - jonah order! jefferson disgraceful! platform jennifer coins) jefferson jonah
+Epoch-57; loss_D: 0.3828; loss_G: 0.3065
+c = realDonaldTrump
+Sample: 29,000! bulk parts ventuera 3 jefferson g jefferson g u g u g u g
+Epoch-58; loss_D: 0.3039; loss_G: 0.5262
+c = dril
+Sample: c u g jefferson jefferson jefferson disgraceful! intelligence—and jennifer jennifer jefferson g jefferson 29,000! intelligence—and
+Epoch-58; loss_D: 0.1953; loss_G: 0.5320
+c = DalaiLama
+Sample: c bulk fucks" platform office) increasing x-man jefferson jefferson jefferson disgraceful! intelligence—and jennifer office) pebble
+Epoch-59; loss_D: 0.2967; loss_G: 0.4875
+c = elonmusk
+Sample: 29,000! holidays" parts office) lecture u g jefferson g jefferson g jefferson g jefferson g
+Epoch-59; loss_D: 0.3215; loss_G: 0.4607
+c = DalaiLama
+Sample: 29,000! jefferson jefferson disgraceful! intelligence—and jennifer jefferson jefferson jefferson jefferson jefferson jefferson disgraceful! jonah office)
+Epoch-60; loss_D: 0.4054; loss_G: 0.3878
+c = elonmusk
+Sample: c holidays" jonah office) increasing scott jefferson g jefferson g jefferson g jefferson g jefferson
+Epoch-60; loss_D: 0.4643; loss_G: 0.4519
+c = elonmusk
+Sample: 29,000! office) us) jennifer intelligence—and jennifer steady jefferson g return, <pad> jefferson g jefferson g
+Epoch-61; loss_D: 0.2614; loss_G: 0.5063
+c = DalaiLama
+Sample: 29,000! bulk fucks" platform return, 29,000! bulk fucks" platform jennifer exist. bulk fucks" bulk fucks"
+Epoch-61; loss_D: 0.3855; loss_G: 0.3934
+c = DalaiLama
+Sample: 29,000! platform cases dna jefferson jonah mobs @jhogangidley. office) r u g jefferson jefferson disgraceful!
+Epoch-62; loss_D: 0.2580; loss_G: 0.3927
+c = elonmusk
+Sample: f u g jefferson g jefferson g platform holidays" parts f u g jefferson g
+Epoch-62; loss_D: 0.4801; loss_G: 0.4371
+c = realDonaldTrump
+Sample: 29,000! bulk g bulk g u g bulk parts office) fucks" bulk remarkable jefferson g
+Epoch-63; loss_D: 0.4689; loss_G: 0.4558
+c = DalaiLama
+Sample: 29,000! office) considered, jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! platform jennifer friends. jefferson jefferson
+Epoch-63; loss_D: 0.5928; loss_G: 0.4814
+c = dril
+Sample: 29,000! intelligence—and friends. jefferson disgraceful! disgraceful! disgraceful! friends. office) 🐐 k bulk 29,000! return, parts
+Epoch-64; loss_D: 0.2192; loss_G: 0.5281
+c = DalaiLama
+Sample: 29,000! bulk fucks" platform office) season, jefferson disgraceful! disgraceful! platform jennifer office) considered, platform office)
+Epoch-64; loss_D: 0.3891; loss_G: 0.4358
+c = dril
+Sample: 29,000! return, 29,000! intelligence—and jennifer friends. jefferson disgraceful! disgraceful! disgraceful! platform jennifer friends. platform return,
+Epoch-65; loss_D: 0.2445; loss_G: 0.4362
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable office) considered, platform las g platform return, parts rotation jefferson g jefferson
+Epoch-65; loss_D: 0.4801; loss_G: 0.4759
+c = dril
+Sample: c bulk 29,000! bulk 29,000! intelligence—and cases jefferson intelligence—and jennifer intelligence—and season, office) 🥜 u
+Epoch-66; loss_D: 0.3245; loss_G: 0.4572
+c = realDonaldTrump
+Sample: 29,000! intelligence—and jennifer office) considered, u g u g u g u g u g
+Epoch-66; loss_D: 0.4780; loss_G: 0.3888
+c = DalaiLama
+Sample: 29,000! intelligence—and churchill friends. jefferson g return, christmas! meerschaum jefferson disgraceful! disgraceful! disgraceful! disgraceful! intelligence—and
+Epoch-67; loss_D: 0.3270; loss_G: 0.4413
+c = realDonaldTrump
+Sample: 29,000! bulk g jonah return, remarkable office) season, disgraceful! disgraceful! disgraceful! intelligence—and jennifer office) considered,
+Epoch-67; loss_D: 0.4363; loss_G: 0.3849
+c = DalaiLama
+Sample: 29,000! bulk fucks" jefferson disgraceful! intelligence—and jennifer return, jennifer office) season, disgraceful! intelligence—and jennifer office)
+Epoch-68; loss_D: 0.3685; loss_G: 0.3948
+c = elonmusk
+Sample: 29,000! holidays" parts home). jefferson g jefferson g bulk parts home). office) considered, jefferson g
+Epoch-68; loss_D: 0.2243; loss_G: 0.4849
+c = elonmusk
+Sample: 29,000! holidays" parts office) cnat office) considered, 🚀 jefferson g bulk 29,000! office) considered, 🚀
+Epoch-69; loss_D: 0.3477; loss_G: 0.3090
+c = realDonaldTrump
+Sample: 29,000! intelligence—and jennifer friends. jefferson g u 29,000! bulk g bulk remarkable return, parts home).
+Epoch-69; loss_D: 0.3589; loss_G: 0.4747
+c = dril
+Sample: 29,000! intelligence—and jennifer societies. g jefferson jefferson disgraceful! disgraceful! office) considered, office) season, jefferson g
+Epoch-70; loss_D: 0.2837; loss_G: 0.4822
+c = realDonaldTrump
+Sample: c bulk parts drugs u g u g 0 parts home). platform rotation us) jonah
+Epoch-70; loss_D: 0.3330; loss_G: 0.3824
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable jefferson g bulk g return, 🧠 29,000! bulk remarkable catchy disgraceful! platform
+Epoch-71; loss_D: 0.2861; loss_G: 0.3831
+c = dril
+Sample: 29,000! intelligence—and jennifer friends. jefferson jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! disgraceful!
+Epoch-71; loss_D: 0.3086; loss_G: 0.5394
+c = realDonaldTrump
+Sample: 29,000! friends. home). platform jennifer merch u g u g return, parts jefferson w <unk>
+Epoch-72; loss_D: 0.5895; loss_G: 0.3205
+c = elonmusk
+Sample: c u g platform holidays" parts office) season, <unk> <unk> <unk> c holidays" parts catchy
+Epoch-72; loss_D: 0.3284; loss_G: 0.4482
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable friends. friends. g bulk g u g jefferson g return, remarkable :
+Epoch-73; loss_D: 0.3947; loss_G: 0.4469
+c = DalaiLama
+Sample: 29,000! bulk fucks" return, jennifer catchy | merch c bulk fucks" platform friends. merch platform
+Epoch-73; loss_D: 0.5390; loss_G: 0.5761
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable <pad> g jefferson g bulk remarkable platform return, g u g jefferson
+Epoch-74; loss_D: 0.4105; loss_G: 0.5426
+c = elonmusk
+Sample: c holidays" parts secrets jefferson g office) considered, home). merch plummbers u g jefferson g
+Epoch-74; loss_D: 0.1898; loss_G: 0.4768
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable u g bulk remarkable crime. return, g u parts home). jefferson g
+Epoch-75; loss_D: 0.4656; loss_G: 0.4891
+c = dril
+Sample: 29,000! jennifer increasing funny, jonah chipotle office) considered, u g jefferson g bulk 29,000! 29,000!
+Epoch-75; loss_D: 0.4549; loss_G: 0.4137
+c = realDonaldTrump
+Sample: c bulk remarkable c bulk remarkable taller, u g u g jonah season, disgraceful! disgraceful!
+Epoch-76; loss_D: 0.3051; loss_G: 0.3920
+c = dril
+Sample: 29,000! intelligence—and jennifer friends. jefferson 29,000! disgraceful! disgraceful! disgraceful! intelligence—and cases jennifer merch 29,000! u
+Epoch-76; loss_D: 0.2152; loss_G: 0.5259
+c = dril
+Sample: c bulk 29,000! platform jennifer friends. merch 29,000! friends. platform jennifer home). u g bulk
+Epoch-77; loss_D: 0.2790; loss_G: 0.4665
+c = DalaiLama
+Sample: 29,000! intelligence—and jennifer merch platform rotation return, cases dedicated jefferson disgraceful! platform merch jefferson g
+Epoch-77; loss_D: 0.3713; loss_G: 0.4819
+c = elonmusk
+Sample: 29,000! holidays" parts catchy increasing considered, office) us) holidays" parts catchy considered, jonah cnat jefferson
+Epoch-78; loss_D: 0.4940; loss_G: 0.4388
+c = DalaiLama
+Sample: 29,000! bulk fucks" return, improved jonah monuments, jefferson g bulk fucks" return, <pad> jefferson disgraceful!
+Epoch-78; loss_D: 0.2816; loss_G: 0.4529
+c = dril
+Sample: c u g bulk 29,000! platform jennifer platform jennifer merch u g bulk 29,000! 29,000!
+Epoch-79; loss_D: 0.4143; loss_G: 0.4572
+c = DalaiLama
+Sample: c bulk fucks" jefferson disgraceful! merch friends. jefferson g bulk fucks" platform merch merch platform
+Epoch-79; loss_D: 0.4782; loss_G: 0.4598
+c = dril
+Sample: u g bulk 29,000! platform friends. disgraceful! disgraceful! platform jennifer friends. platform jennifer platform merch
+Epoch-80; loss_D: 0.3026; loss_G: 0.4682
+c = realDonaldTrump
+Sample: c bulk parts catchy considered, u g u g u g u g u g
+Epoch-80; loss_D: 0.4144; loss_G: 0.5003
+c = realDonaldTrump
+Sample: 29,000! bulk 29,000! bulk remarkable kids considered, office) season, jefferson g u g u g
+Epoch-81; loss_D: 0.2047; loss_G: 0.4233
+c = elonmusk
+Sample: c holidays" parts home). merch office) considered, u g jefferson g jefferson g platform merch
+Epoch-81; loss_D: 0.4866; loss_G: 0.5266
+c = dril
+Sample: c u g bulk 29,000! platform merch u g bulk 29,000! platform platform merch platform
+Epoch-82; loss_D: 0.3057; loss_G: 0.5132
+c = dril
+Sample: c u g bulk 29,000! platform rotation 29,000! friends. jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful!
+Epoch-82; loss_D: 0.2870; loss_G: 0.5121
+c = dril
+Sample: 29,000! 29,000! platform jennifer jennifer merch holidays" parts 96% platform jennifer office) considered, u g
+Epoch-83; loss_D: 0.4646; loss_G: 0.4406
+c = DalaiLama
+Sample: c bulk fucks" platform friends. office) season, jefferson disgraceful! jennifer merch merch merch platform jennifer
+Epoch-83; loss_D: 0.3823; loss_G: 0.5092
+c = elonmusk
+Sample: c holidays" parts catchy balls... office) considered, … <unk> u g jefferson g jefferson g
+Epoch-84; loss_D: 0.2983; loss_G: 0.5343
+c = dril
+Sample: c u g jefferson jefferson g bulk 29,000! u g bulk 29,000! platform jennifer friends.
+Epoch-84; loss_D: 0.3207; loss_G: 0.3457
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable u g bulk parts home). <unk> c bulk remarkable . - 💩
+Epoch-85; loss_D: 0.2606; loss_G: 0.4417
+c = DalaiLama
+Sample: c bulk fucks" return, season, jefferson jefferson disgraceful! disgraceful! disgraceful! disgraceful! disgraceful! platform jennifer merch
+Epoch-85; loss_D: 0.2939; loss_G: 0.4806
+c = DalaiLama
+Sample: c bulk fucks" return, merch merch merch jefferson disgraceful! intelligence—and jennifer jefferson g jefferson disgraceful!
+Epoch-86; loss_D: 0.2853; loss_G: 0.4893
+c = elonmusk
+Sample: 29,000! holidays" parts home). jefferson g jefferson g jefferson g jefferson g jefferson g bulk
+Epoch-86; loss_D: 0.1886; loss_G: 0.5495
+c = dril
+Sample: 29,000! 29,000! jefferson u g bulk 29,000! jennifer merch return, jennifer platform jennifer fucks" platform
+Epoch-87; loss_D: 0.2646; loss_G: 0.4518
+c = elonmusk
+Sample: 29,000! holidays" parts catchy balls... season, u g jefferson <unk> e 29,000! holidays" parts home).
+Epoch-87; loss_D: 0.3165; loss_G: 0.4502
+c = realDonaldTrump
+Sample: c holidays" parts home). friends. jefferson g u g bulk g u g u g
+Epoch-88; loss_D: 0.5003; loss_G: 0.4420
+c = elonmusk
+Sample: 29,000! holidays" parts home). balls... offering jennifer merch e c holidays" parts home). intelligence—and @jhogangidley.
+Epoch-88; loss_D: 0.4317; loss_G: 0.4878
+c = elonmusk
+Sample: c holidays" parts catchy cleansing cleansing home). jefferson g jefferson g jefferson g jefferson g
+Epoch-89; loss_D: 0.2519; loss_G: 0.3779
+c = DalaiLama
+Sample: c bulk fucks" jefferson disgraceful! disgraceful! platform merch merch return, sustain merch merch x 29,000!
+Epoch-89; loss_D: 0.4293; loss_G: 0.5457
+c = dril
+Sample: c u g bulk 29,000! home). jefferson disgraceful! disgraceful! disgraceful! disgraceful! platform jennifer commemorating platform
+Epoch-90; loss_D: 0.3183; loss_G: 0.5534
+c = elonmusk
+Sample: 29,000! holidays" parts home). merch office) considered, f u g jefferson g u g home).
+Epoch-90; loss_D: 0.3162; loss_G: 0.4872
+c = dril
+Sample: c u jonah google+ u g jefferson jefferson disgraceful! disgraceful! disgraceful! disgraceful! bodh merch platform
+Epoch-91; loss_D: 0.3886; loss_G: 0.3968
+c = realDonaldTrump
+Sample: 29,000! bulk remarkable u g u g u g return, jennifer commemorating disgraceful! disgraceful! disgraceful!
+Epoch-91; loss_D: 0.3357; loss_G: 0.4534
+c = DalaiLama
+Sample: e 29,000! bulk fucks" jefferson jefferson g bulk fucks" return, jennifer commemorating fucks" jefferson disgraceful!
+Epoch-92; loss_D: 0.4025; loss_G: 0.4678
+c = DalaiLama
+Sample: 29,000! bulk fucks" return, merch passive home). commemorating bulk fucks" jefferson disgraceful! return, <pad> jefferson
+Epoch-92; loss_D: 0.2500; loss_G: 0.5987
+c = realDonaldTrump
+Sample: c bulk remarkable u g u g return, jonah won, u g u g u
+Epoch-93; loss_D: 0.2245; loss_G: 0.3673
+c = elonmusk
+Sample: 29,000! holidays" parts catchy balls... catchy balls... rallies. g jefferson g bulk remarkable illinois, v
+Epoch-93; loss_D: 0.2593; loss_G: 0.4355
+c = DalaiLama
+Sample: 29,000! bulk 29,000! bulk fucks" return, merch throughput. u g platform jefferson disgraceful! platform merch
+Epoch-94; loss_D: 0.3356; loss_G: 0.4830
+c = DalaiLama
+Sample: 29,000! root, rotation jefferson disgraceful! intelligence—and jennifer commemorating sincere season, jefferson g jefferson g platform
+Epoch-94; loss_D: 0.1536; loss_G: 0.5080
+c = realDonaldTrump
+Sample: c bulk remarkable u g office) cleansing u g jefferson g u g jefferson g
+Epoch-95; loss_D: 0.3108; loss_G: 0.4590
+c = realDonaldTrump
+Sample: c bulk remarkable f bulk remarkable 1 crying <unk> g jefferson g u g u
+Epoch-95; loss_D: 0.3174; loss_G: 0.4222
+c = elonmusk
+Sample: c holidays" parts return, fucks" u g jefferson g jefferson g jefferson g jefferson g
+Epoch-96; loss_D: 0.1457; loss_G: 0.4857
+c = realDonaldTrump
+Sample: c bulk 💕 holidays" parts commemorating repeats jefferson g jefferson g u g u g
+Epoch-96; loss_D: 0.3159; loss_G: 0.5491
+c = elonmusk
+Sample: c holidays" parts season, easy, g jefferson g jefferson g jefferson g jefferson g jefferson
+Epoch-97; loss_D: 0.3101; loss_G: 0.4552
+c = realDonaldTrump
+Sample: c bulk remarkable u g u g u g jefferson g u g <unk> e
+Epoch-97; loss_D: 0.3821; loss_G: 0.4243
+c = realDonaldTrump
+Sample: k bulk remarkable u g catchy oneself. u g return, parts catchy balls... rich v
+Epoch-98; loss_D: 0.2343; loss_G: 0.4373
+c = realDonaldTrump
+Sample: c bulk remarkable weakness c bulk parts catchy ceo jefferson balls... stimulus, seattle disgraceful! xbox/ps
+Epoch-98; loss_D: 0.2601; loss_G: 0.3636
+c = realDonaldTrump
+Sample: c bulk remarkable technocracy teddy unrealistic officially g bulk g u g u g u
+Epoch-99; loss_D: 0.3085; loss_G: 0.4187
+c = DalaiLama
+Sample: c bulk fucks" jefferson disgraceful! disgraceful! 🐐 g return, fucks" haha. fucks" jefferson jefferson disgraceful!
+Epoch-99; loss_D: 0.2933; loss_G: 0.4181
+c = elonmusk
+Sample: c holidays" parts catchy “cases” car, car, resonator return, 1-10. considered, office) increasing "pussy g
+
+Process finished with exit code 0
