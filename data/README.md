@@ -2,7 +2,7 @@
 
 ## Dataset
 
-The raw data for the 26 Twitter accounts scraped can be found in the `raw/` directory. The data cleaning and exploration process can be found in the `Data cleaning.ipynb` file. Finally, the dataset in the correct format to be used by our model is in the current directory, and consists of the files `tweets.test.txt`, `tweets.test.labels`, `tweets.train.txt`, and `tweets.train.labels`/
+The raw data for the 26 Twitter accounts scraped can be found in the `raw/` directory. The data cleaning and exploration process can be found in the `Data cleaning.ipynb` file. Finally, the dataset in the correct format to be used by our model is in the current directory, and consists of the files `tweets.test.txt`, `tweets.test.labels`, `tweets.train.txt`, and `tweets.train.labels`.
 
 ## Data Pipeline
 
