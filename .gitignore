@@ -7,7 +7,11 @@
 
 # web app
 **/.DS_Store
+<<<<<<< HEAD
+webapp/client/node_modules
+=======
 webapp/node_modules
 
 # pycache
 __pycache__/*
+>>>>>>> d779da590d318a6f2fb2c1c3feb55e54f4e7fb9b
