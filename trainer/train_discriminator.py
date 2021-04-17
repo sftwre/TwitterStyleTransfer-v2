@@ -4,7 +4,7 @@ import argparse
 from trainer.vae import VAE
 import torch.optim as optim
 import torch.nn.functional as F
-from dataset import TwitterDataset
+from trainer.dataset import TwitterDataset
 from torch.utils.tensorboard import SummaryWriter
 
 def main(args):
