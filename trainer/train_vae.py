@@ -4,7 +4,7 @@ import argparse
 from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from dataset import TwitterDataset
-from vae import VAE
+from trainer.vae import VAE
 
 
 def main(args):
@@ -84,10 +84,10 @@ def main(args):
 
 def saveModel(model):
 
-    if not os.path.exists('models/'):
+    if not os.path.exists('../models/'):
         os.makedirs('models/')
 
-    PATH = 'models/vae.pt'
+    PATH = '../models/vae.pt'
 
     torch.save(model.state_dict(), PATH)
 

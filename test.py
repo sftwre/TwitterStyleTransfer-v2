@@ -1,9 +1,9 @@
 import torch
 import numpy as np
-from vae import VAE
+from trainer.vae import VAE
 from dataset import TwitterDataset
 import argparse
-from functools import reduce
+
 
 def beam_search(soft_words, k):
     sequences = [[list(), 0.0]]
