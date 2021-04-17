@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from trainer.vae import VAE
-from dataset import TwitterDataset
+from trainer.dataset import TwitterDataset
 import argparse
 
 
