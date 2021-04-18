@@ -5,25 +5,109 @@ from dataset import TwitterDataset
 import argparse
 from functools import reduce
 
+class Beam(object):
+    """
+    Beam data structure. Maintains a list of scored elements like a Counter, but only keeps the top n
+    elements after every insertion operation. Insertion is O(n) (list is maintained in
+    sorted order), access is O(1). Still fast enough for practical purposes for small beams.
+    """
+    def __init__(self, size):
+        self.size = size
+        self.elts = []
+        self.scores = []
+
+    def __repr__(self):
+        return "Beam(" + repr(list(self.get_elts_and_scores())) + ")"
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __len__(self):
+        return len(self.elts)
+
+    def add(self, elt, score):
+        """
+        Adds the element to the beam with the given score if the beam has room or if the score
+        is better than the score of the worst element currently on the beam
+
+        :param elt: element to add
+        :param score: score corresponding to the element
+        """
+        if len(self.elts) == self.size and score < self.scores[-1]:
+            # Do nothing because this element is the worst
+            return
+        # If the list contains the item with a lower score, remove it
+        i = 0
+        while i < len(self.elts):
+            if self.elts[i] == elt and score > self.scores[i]:
+                del self.elts[i]
+                del self.scores[i]
+            i += 1
+        # If the list is empty, just insert the item
+        if len(self.elts) == 0:
+            self.elts.insert(0, elt)
+            self.scores.insert(0, score)
+        # Find the insertion point with binary search
+        else:
+            lb = 0
+            ub = len(self.scores) - 1
+            # We're searching for the index of the first element with score less than score
+            while lb < ub:
+                m = (lb + ub) // 2
+                # Check > because the list is sorted in descending order
+                if self.scores[m] > score:
+                    # Put the lower bound ahead of m because all elements before this are greater
+                    lb = m + 1
+                else:
+                    # m could still be the insertion point
+                    ub = m
+            # lb and ub should be equal and indicate the index of the first element with score less than score.
+            # Might be necessary to insert at the end of the list.
+            if self.scores[lb] > score:
+                self.elts.insert(lb + 1, elt)
+                self.scores.insert(lb + 1, score)
+            else:
+                self.elts.insert(lb, elt)
+                self.scores.insert(lb, score)
+            # Drop and item from the beam if necessary
+            if len(self.scores) > self.size:
+                self.elts.pop()
+                self.scores.pop()
+
+    def get_elts(self):
+        return self.elts
+
+    def get_elts_and_scores(self):
+        return zip(self.elts, self.scores)
+
+    def head(self):
+        return self.elts[0]
+
+
 def beam_search(soft_words, k):
     sequences = [[list(), 0.0]]
-
     # walk over each step in sequence
-    for tensor in soft_words:
-        all_candidates = list()
+    myBeam = Beam(5)
+    mytensor = soft_words[0]
+    row = mytensor.tolist()
+    for j in range(len(row)):
+        if row[j] != 0.0:
+            print(np.log(row[j]))
+            myBeam.add([j], np.log(row[j]))
+    for y in range(1, len(soft_words)):
+        tensor = soft_words[y]
         row = tensor.tolist()
+        newBeam = Beam(5)
         # expand each current candidate
-        for i in range(len(sequences)):
-            seq, score = sequences[i]
+        for ele, score in myBeam.get_elts_and_scores():
             for j in range(len(row)):
-                candidate = [seq + [j], score - np.log(row[j])]
-                all_candidates.append(candidate)
+                    if row[j] != 0.0:
+                        newBeam.add(ele + [j], score + np.log(row[j]))
         # order all candidates by score
-        ordered = sorted(all_candidates, key=lambda x:x[1], reverse=True)
-        # select k best
-        sequences = ordered[:k]
+        myBeam = newBeam
+        print(myBeam.get_elts())
 
-    return sequences
+    return myBeam.get_elts()
 
 
 def main(args):
@@ -47,7 +131,7 @@ def main(args):
 
     model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=args.gpu)
 
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 
     # load model on correct device
     model.to(device)

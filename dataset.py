@@ -1,6 +1,6 @@
 import nltk
 import numpy as np
-from torchtext import data
+from torchtext.legacy import data
 from torchtext.vocab import Vocab
 from collections import Counter
 from nltk.corpus import stopwords
