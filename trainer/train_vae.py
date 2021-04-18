@@ -3,8 +3,8 @@ import torch
 import argparse
 from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
-from dataset import TwitterDataset
-from vae import VAE
+from trainer.dataset import TwitterDataset
+from trainer.vae import VAE
 
 
 def main(args):
@@ -84,10 +84,10 @@ def main(args):
 
 def saveModel(model):
 
-    if not os.path.exists('models/'):
+    if not os.path.exists('../models/'):
         os.makedirs('models/')
 
-    PATH = 'models/vae.pt'
+    PATH = '../models/vae.pt'
 
     torch.save(model.state_dict(), PATH)
 
@@ -96,7 +96,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--lr', default=.001, type=float)
     parser.add_argument('--log', default=False, type=str, help='Flag to log training loss/params for tensorboard visualizations')
-    parser.add_argument('--gpu', default=False, type=bool, help='Flag to run model on gpu')
+    parser.add_argument('--gpu', default=True, type=bool, help='Flag to run model on gpu')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
     parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')

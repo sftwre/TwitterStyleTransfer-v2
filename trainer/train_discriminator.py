@@ -1,10 +1,10 @@
 import os
 import torch
 import argparse
-from vae import VAE
+from trainer.vae import VAE
 import torch.optim as optim
 import torch.nn.functional as F
-from dataset import TwitterDataset
+from trainer.dataset import TwitterDataset
 from torch.utils.tensorboard import SummaryWriter
 
 def main(args):
@@ -143,10 +143,10 @@ def main(args):
 
 def saveModel(model):
 
-    if not os.path.exists('models/'):
+    if not os.path.exists('../models/'):
         os.makedirs('models/')
 
-    PATH = 'models/tweet_gen.pt'
+    PATH = '../models/tweet_gen.pt'
 
     torch.save(model.state_dict(), PATH)
 

@@ -1,9 +1,9 @@
 import torch
 import numpy as np
-from vae import VAE
-from dataset import TwitterDataset
+from trainer.vae import VAE
+from trainer.dataset import TwitterDataset
 import argparse
-from functools import reduce
+
 
 class Beam(object):
     """
