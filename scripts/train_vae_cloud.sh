@@ -1,3 +1,9 @@
+#!/bin/bash
+
+BUCKET_NAME=torch_model_info
+JOB_NAME=vae_job_$(date +%Y%m%d_%H%M%S)
+JOB_DIR=gs://${BUCKET_NAME}/${JOB_NAME}/models
+
 gcloud ai-platform jobs submit training ${JOB_NAME} \
   --region=us-central1 \
   --master-image-uri=gcr.io/cloud-ml-public/training/pytorch-gpu.1-7 \
