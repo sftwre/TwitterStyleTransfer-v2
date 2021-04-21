@@ -66,6 +66,7 @@ class VAE(nn.Module):
         self.discriminator_params = filter(lambda t: t.requires_grad, self.discriminator.parameters())
 
         if self.gpu:
+            print(self.gpu)
             self.cuda('cuda:0')
 
     def forwardEncoder(self, inputs):
@@ -193,6 +194,7 @@ class VAE(nn.Module):
 
         size = inputs.size(1)
 
+        # TODO add pad token to vocab
         pad_words = torch.LongTensor([1]).repeat(1, size)
         pad_words = pad_words.cuda() if self.gpu else pad_words
 

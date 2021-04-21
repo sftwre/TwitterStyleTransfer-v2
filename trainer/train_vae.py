@@ -3,8 +3,8 @@ import torch
 import argparse
 from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
-from trainer.dataset import TwitterDataset
-from trainer.vae import VAE
+from dataset import TwitterDataset
+from vae import VAE
 
 
 def main(args):
@@ -43,6 +43,10 @@ def main(args):
         dataset.resetTrainBatches()
 
         for inputs, labels in dataset.trainIterator:
+
+            # zero out previous gradients
+            optimizer.zero_grad()
+
             recon_loss, kl_loss = model.forward(inputs)
 
             loss = recon_loss + kld_weight * kl_loss
@@ -59,7 +63,6 @@ def main(args):
             loss.backward()
             # grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
             optimizer.step()
-            optimizer.zero_grad()
 
             if interval % report_interval == 0:
                 z = model.sample_z_prior(1)
@@ -85,7 +88,7 @@ def main(args):
 def saveModel(model):
 
     if not os.path.exists('../models/'):
-        os.makedirs('models/')
+        os.makedirs('../models/')
 
     PATH = '../models/vae.pt'
 
@@ -95,8 +98,10 @@ def saveModel(model):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--lr', default=.001, type=float)
-    parser.add_argument('--log', default=False, type=str, help='Flag to log training loss/params for tensorboard visualizations')
-    parser.add_argument('--gpu', default=True, type=bool, help='Flag to run model on gpu')
+    parser.add_argument('--log', default=False, type=bool, help='Flag to log training loss/params for tensorboard visualizations')
+    parser.add_argument('--gpu', dest='gpu', action='store_true', help='Flag to run model on gpu')
+    parser.add_argument('--cpu', dest='gpu', action='store_false', help='Flag to run model on cpu')
+    parser.set_defaults(gpu=True)
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
     parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')

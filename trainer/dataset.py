@@ -1,6 +1,6 @@
 import nltk
 import numpy as np
-from torchtext.legacy import data
+from torchtext import data
 from torchtext.vocab import Vocab
 from collections import Counter
 from nltk.corpus import stopwords
@@ -16,9 +16,9 @@ class TwitterDataset():
         self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
         self.LABEL = data.Field(sequential=False, unk_token=None)
 
-        vocabPath = '../data/vocab.txt'
-        trainPath = '../data/tweets.train.txt'
-        trainLabelsPath = '../data/tweets.train.labels'
+        vocabPath = 'data/vocab.txt'
+        trainPath = 'data/tweets.train.txt'
+        trainLabelsPath = 'data/tweets.train.labels'
 
         testPath = '../data/tweets.test.txt'
         testLabelsPath = '../data/tweets.test.labels'
