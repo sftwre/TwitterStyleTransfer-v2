@@ -1,10 +1,11 @@
-import nltk
+import torch
 import numpy as np
-from torchtext import data
+from typing import List
 from torchtext.vocab import Vocab
 from collections import Counter
 from nltk.corpus import stopwords
 # nltk.download('stopwords')
+from .utils import *
 
 class TwitterDataset():
 
@@ -13,8 +14,9 @@ class TwitterDataset():
         self.gpu = gpu
         self.emb_dim = emb_dim
         self.batch_size = batch_size
-        self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
-        self.LABEL = data.Field(sequential=False, unk_token=None)
+
+        # self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
+        # self.LABEL = data.Field(sequential=False, unk_token=None)
 
         vocabPath = 'data/vocab.txt'
         trainPath = 'data/tweets.train.txt'
@@ -23,26 +25,23 @@ class TwitterDataset():
         testPath = '../data/tweets.test.txt'
         testLabelsPath = '../data/tweets.test.labels'
 
-        # stopwords to remove from tweets
-        # self.sw = set(stopwords.words('english'))
-
         # load vocab
         self.vocab = self._loadVocab(vocabPath)
 
         # load training data
-        X_train, y_train = self._loadData(trainPath, trainLabelsPath)
+        self.X_train, self.y_train = self._loadData(trainPath, trainLabelsPath)
 
-        self.X_train = X_train
-        self.y_train = y_train
+        # self.TEXT.vocab = self._buildVocab(self.X_train)
+        # self.LABEL.vocab = self._buildVocab(self.y_train, labels=True)
 
-        self.TEXT.vocab = self._buildVocab(self.X_train)
-        self.LABEL.vocab = self._buildVocab(self.y_train, labels=True)
+        self.tweet_indexer = self._buildTweetVocab()
+        self.account_indexer = self._buildAccountVocab(self.y_train)
 
         # size of vocabulary
-        self.vocab_size = len(self.TEXT.vocab.itos)
+        self.vocab_size = len(self.vocab)
 
         # number of accounts dataset
-        self.n_accounts = len(self.LABEL.vocab.itos) - 2
+        self.n_accounts = len(self.account_indexer)
 
         # define training iterator
         self.trainIterator = None
@@ -73,6 +72,10 @@ class TwitterDataset():
             vocab = file.read().split()
             vocab = set(vocab)
 
+            # add each word to indexer
+            for word in vocab:
+                self.tweet_indexer.add_and_get_index(word)
+
         return vocab
 
     def _cleanTweet(self, tweet):
@@ -98,6 +101,56 @@ class TwitterDataset():
 
         return vocab
 
+    def _buildTweetVocab(self):
+        """
+        adds words in vocab to indexer and returns it
+        Assumes the vocab has been loaded into memory
+        :return:
+        """
+
+        tweet_indexer = Indexer()
+
+        # add special symbols
+        tweet_indexer.add_and_get_index(UNK_SYMBOL)
+        tweet_indexer.add_and_get_index(PAD_SYMBOL)
+
+        # add each word to indexer
+        for word in self.vocab:
+            tweet_indexer.add_and_get_index(word)
+
+        return tweet_indexer
+
+    def _buildAccountVocab(self, acct_handles:np.ndarray):
+        """
+        adds account handles to indexer and returns it
+        :param acct_handles:
+        :return:
+        """
+        account_indexer = Indexer()
+
+        account_indexer.add_and_get_index(UNK_SYMBOL)
+
+        for acct in acct_handles:
+            account_indexer.add_and_get_index(acct)
+
+        return account_indexer
+
+    def _batchToIdxs(self, batch:List[str], labels=False) -> torch.Tensor:
+        """
+        converts batch of tweets into corresponding indices
+        :param batch:
+        :return:
+        """
+        idxs = list()
+
+        indexer = self.tweet_indexer if not labels else self.account_indexer
+
+        for ex in batch:
+            idxs.append(list(map(lambda x: indexer.index_of(x), ex)))
+
+        return torch.tensor(idxs)
+
+
     def _dataIterator(self, text, labels):
         """
         Generator that yields batch_size items from a dataset
@@ -114,16 +167,23 @@ class TwitterDataset():
 
         # randomly shuffle data
         # TODO sort tweets by length, so the LSTM trains on batches of similair length
-        idx = np.arange(text.shape[0])
-        np.random.shuffle(idx)
+        # idx = np.arange(text.shape[0])
+        # np.random.shuffle(idx)
+        #
+        # text = text[idx]
+        # labels = labels[idx]
+        text_labels = list(zip(text, labels))
+        text_labels = sorted(text_labels, key=lambda x: len(x[0]), reverse=False)
+        tuples = zip(*text_labels)
 
-        text = text[idx]
-        labels = labels[idx]
+        text, labels = [list(t) for t in tuples]
 
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
-            encodedText = self.TEXT.process(text[start:end])
-            encodedLabels = self.LABEL.process(labels[start:end])
+            # encodedText = self.TEXT.process(text[start:end])
+            # encodedLabels = self.LABEL.process(labels[start:end])
+            encodedText = self._batchToIdxs(text[start:end])
+            encodedLabels = self._batchToIdxs(labels[start:end], labels=True)
 
             if self.gpu:
                 encodedText = encodedText.cuda()
@@ -134,14 +194,11 @@ class TwitterDataset():
     def resetTrainBatches(self):
         self.trainIterator = self._dataIterator(self.X_train, self.y_train)
 
-    def getVocabVectors(self):
-        return self.TEXT.vocab.vectors
-
     def idxs2sentence(self, idxs):
-        return ' '.join([self.TEXT.vocab.itos[i] for i in idxs])
+        return ' '.join([self.tweet_indexer.get_object(i) for i in idxs])
 
     def idx2label(self, idx):
-        return self.LABEL.vocab.itos[idx]
+        return self.account_indexer.get_object(idx)
 
 
 
