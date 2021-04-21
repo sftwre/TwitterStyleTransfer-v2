@@ -98,10 +98,14 @@ def saveModel(model):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--lr', default=.001, type=float)
-    parser.add_argument('--log', default=False, type=bool, help='Flag to log training loss/params for tensorboard visualizations')
+    parser.add_argument('--log', dest='log', action='store_true', help='Flag to log training loss/params for tensorboard visualizations')
+    parser.add_argument('--no-log', dest='log', action='store_false', help='Flag to turn off tensorboard logging')
+    parser.set_defaults(log=True)
+
     parser.add_argument('--gpu', dest='gpu', action='store_true', help='Flag to run model on gpu')
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='Flag to run model on cpu')
     parser.set_defaults(gpu=True)
+
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
     parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')
