@@ -19,14 +19,13 @@
 
 # Launch serial code...
 
-while getopts epochs:lr: flag
+while getopts e:l: flag
 do
     case "${flag}" in
-        epochs) epochs=${OPTARG};;
-        lr) lr=${OPTARG};;
+        e) epochs=${OPTARG};;
+        l) lr=${OPTARG};;
     esac
 done
 
-python3 ../trainer/train_vae.py --epochs $epochs --lr $lr
-
+python3 trainer/train_vae.py --epochs $epochs --lr $lr
 # ---------------------------------------------------
