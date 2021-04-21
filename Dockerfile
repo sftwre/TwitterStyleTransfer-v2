@@ -1,5 +1,5 @@
 
-FROM pytorch/pytorch:1.8.0-cuda11.1-cudnn8-devel
+FROM gcr.io/cloud-ml-public/training/pytorch-gpu.1-7
 
 WORKDIR /root
 

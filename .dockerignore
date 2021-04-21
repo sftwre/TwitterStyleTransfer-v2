@@ -2,3 +2,5 @@
 baseline
 logs
 runs
+webapp
+*.ipynb
