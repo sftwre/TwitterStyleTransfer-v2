@@ -1,23 +1,20 @@
 import torch
 import numpy as np
+import pandas as pd
 from typing import List
 from collections import Counter
-from .utils import *
+from utils import *
 
 class TwitterDataset():
 
-    def __init__(self, emb_dim=50, batch_size=32, tweet_len=280, gpu=False):
+    def __init__(self, batch_size=32, gpu=False):
 
         self.gpu = gpu
-        self.emb_dim = emb_dim
         self.batch_size = batch_size
 
-        # self.TEXT = data.Field(init_token='<start>', eos_token='<eos>', tokenize='spacy', fix_length=tweet_len)
-        # self.LABEL = data.Field(sequential=False, unk_token=None)
-
-        vocabPath = 'data/vocab.txt'
-        trainPath = 'data/tweets.train.txt'
-        trainLabelsPath = 'data/tweets.train.labels'
+        vocabPath = '../data/vocab.txt'
+        trainPath = '../data/tweets.train.txt'
+        trainLabelsPath = '../data/tweets.train.labels'
 
         testPath = '../data/tweets.test.txt'
         testLabelsPath = '../data/tweets.test.labels'
@@ -27,9 +24,6 @@ class TwitterDataset():
 
         # load training data
         self.X_train, self.y_train = self._loadData(trainPath, trainLabelsPath)
-
-        # self.TEXT.vocab = self._buildVocab(self.X_train)
-        # self.LABEL.vocab = self._buildVocab(self.y_train, labels=True)
 
         self.tweet_indexer = self._buildTweetVocab()
         self.account_indexer = self._buildAccountVocab(self.y_train)
@@ -45,7 +39,7 @@ class TwitterDataset():
 
     def _loadData(self, dataFile, labelsFile):
         """
-        Loads twitter data and labels and apply filters.
+        Loads twitter data and labels and applies filters.
         """
         # first element is twitter data, second are labels
         data = []
@@ -54,10 +48,15 @@ class TwitterDataset():
                 text = file.read().split('\n')
                 data.append(text)
 
-        # remove stopwords and non-vocabulary words
-        data[0] = np.array(list(map(self._cleanTweet, data[0])))
-        data[1] = np.array(data[1])
-        return data
+        # remove tokens not in the vocab
+        data[0] = list(map(self._cleanTweet, data[0]))
+
+        df = pd.DataFrame(data={'tweet': data[0], 'account': data[1]})
+
+        # remove empty tweets
+        df = df[df.tweet != '']
+
+        return df.tweet.values, df.account.values
 
     def _loadVocab(self, path):
         """
@@ -68,10 +67,6 @@ class TwitterDataset():
         with open(path, 'r', encoding='UTF-8') as file:
             vocab = file.read().split()
             vocab = set(vocab)
-
-            # add each word to indexer
-            for word in vocab:
-                self.tweet_indexer.add_and_get_index(word)
 
         return vocab
 
@@ -84,19 +79,6 @@ class TwitterDataset():
 
         # create new sentences
         return ' '.join(tokens)
-
-    def _buildVocab(self, data, labels=False):
-
-        counter = Counter()
-
-        for x in data:
-            words = x.split()
-            counter.update(words)
-
-        specials = ['<unk>', '<pad>', '<start>', '<eos>']
-        vocab = Vocab(counter, specials=specials) if not labels else Vocab(counter, specials_first=False)
-
-        return vocab
 
     def _buildTweetVocab(self):
         """
@@ -151,6 +133,7 @@ class TwitterDataset():
     def _dataIterator(self, text, labels):
         """
         Generator that yields batch_size items from a dataset
+        sorted by increasing length.
         :param data:
         :param batch_size:
         :return:
@@ -162,23 +145,16 @@ class TwitterDataset():
                   f'text length: {len(text)}, labels length: {len(labels)}', sep='\n')
             exit(-1)
 
-        # randomly shuffle data
-        # TODO sort tweets by length, so the LSTM trains on batches of similair length
-        # idx = np.arange(text.shape[0])
-        # np.random.shuffle(idx)
-        #
-        # text = text[idx]
-        # labels = labels[idx]
+        # sort tweets by length
         text_labels = list(zip(text, labels))
         text_labels = sorted(text_labels, key=lambda x: len(x[0]), reverse=False)
         tuples = zip(*text_labels)
 
         text, labels = [list(t) for t in tuples]
 
+        # generate batches
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
-            # encodedText = self.TEXT.process(text[start:end])
-            # encodedLabels = self.LABEL.process(labels[start:end])
             encodedText = self._batchToIdxs(text[start:end])
             encodedLabels = self._batchToIdxs(labels[start:end], labels=True)
 
