@@ -194,7 +194,6 @@ class VAE(nn.Module):
 
         size = inputs.size(1)
 
-        # TODO add pad token to vocab
         pad_words = torch.LongTensor([1]).repeat(1, size)
         pad_words = pad_words.cuda() if self.gpu else pad_words
 

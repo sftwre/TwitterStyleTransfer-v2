@@ -114,20 +114,36 @@ class TwitterDataset():
 
         return account_indexer
 
-    def _batchToIdxs(self, batch:List[str], labels=False) -> torch.Tensor:
+    def _batchToIdxs(self, batch:List[List[str]], labels=False) -> torch.Tensor:
         """
-        converts batch of tweets into corresponding indices
-        :param batch:
-        :return:
+        converts batch of tweets or account handle into corresponding indices in the indexer.
+        If the labels flag is False, then the inputs are padded to the max length
+        :param batch: batch of inputs or account handels
+        :return: tensor of indices, padded for input text
         """
-        idxs = list()
+        inputs = list()
 
         indexer = self.tweet_indexer if not labels else self.account_indexer
 
-        for ex in batch:
-            idxs.append(list(map(lambda x: indexer.index_of(x), ex)))
+        if not labels:
+            for ex in batch:
+                inputs.append(list(map(lambda x: indexer.index_of(x), ex)))
 
-        return torch.tensor(idxs)
+            max_len = np.asarray(list(map(lambda x: len(x), inputs))).max()
+
+            # pad inputs to max len
+            padded_inputs = np.array([[ex[i] if i < len(ex) else indexer.index_of(UNK_SYMBOL) for i in range(max_len)] for ex in inputs])
+            inputs = padded_inputs
+
+        else:
+            inputs.append(list(map(lambda x: indexer.index_of(x), batch)))
+
+        inputs = torch.tensor(inputs)
+
+        if labels:
+            inputs = inputs.reshape((-1, 1))
+
+        return inputs
 
 
     def _dataIterator(self, text, labels):
@@ -155,8 +171,12 @@ class TwitterDataset():
         # generate batches
         for start in range(0, len(text), self.batch_size):
             end = start + self.batch_size
-            encodedText = self._batchToIdxs(text[start:end])
-            encodedLabels = self._batchToIdxs(labels[start:end], labels=True)
+
+            batch_tweets = [ex.split() for ex in text[start:end]]
+            batch_labels = labels[start:end]
+
+            encodedText = self._batchToIdxs(batch_tweets)
+            encodedLabels = self._batchToIdxs(batch_labels, labels=True)
 
             if self.gpu:
                 encodedText = encodedText.cuda()
