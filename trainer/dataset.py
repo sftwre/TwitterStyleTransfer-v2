@@ -90,8 +90,10 @@ class TwitterDataset():
         tweet_indexer = Indexer()
 
         # add special symbols
-        tweet_indexer.add_and_get_index(UNK_SYMBOL)
         tweet_indexer.add_and_get_index(PAD_SYMBOL)
+        tweet_indexer.add_and_get_index(UNK_SYMBOL)
+        tweet_indexer.add_and_get_index(SOS_SYMBOL)
+        tweet_indexer.add_and_get_index(EOS_SYMBOL)
 
         # add each word to indexer
         for word in self.vocab:
