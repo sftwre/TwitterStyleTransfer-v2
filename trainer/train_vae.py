@@ -1,6 +1,7 @@
 import os
 import torch
 import argparse
+import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 import torch.optim as optim
 from dataset import TwitterDataset
@@ -10,22 +11,25 @@ from vae import VAE
 def main(args):
 
     # tensorboard writer
-    writer = SummaryWriter()
     log_runs = args.log
     lr = args.lr
     epochs = args.epochs
     gpu = args.gpu
     z_dim = args.z_dim
     h_dim = args.h_dim
+    batch_sz = args.batch_size
     lr_decay_every = 5
     report_interval = 100
 
-    dataset = TwitterDataset(gpu=gpu)
+    if log_runs:
+        writer = SummaryWriter()
+
+    dataset = TwitterDataset(batch_size=batch_sz, gpu=gpu)
 
     # controllable parameter for each account
     c_dim = dataset.n_accounts
 
-    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
+    model = VAE(dataset.tweet_indexer, dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
 
     # Annealing for KL term
     kld_start_inc = 3000
@@ -47,7 +51,9 @@ def main(args):
             # zero out previous gradients
             optimizer.zero_grad()
 
-            recon_loss, kl_loss = model.forward(inputs)
+            input_lens = torch.tensor(np.count_nonzero(inputs, axis=1))
+
+            recon_loss, kl_loss = model.forward(inputs, input_lens)
 
             loss = recon_loss + kld_weight * kl_loss
 
@@ -74,15 +80,21 @@ def main(args):
                 print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recon: {recon_loss.item():.4f}; KL: {kl_loss.item():.4f}')
                 print(f'Sample: "{sample_sent}"', end='\n')
 
+                if log_runs:
+                    writer.add_text('Generator - training', sample_sent, e)
+
             # Anneal learning rate
             new_lr = lr * (0.5 ** (e // lr_decay_every))
             for param_group in optimizer.param_groups:
                 param_group['lr'] = new_lr
 
             interval += 1
+
     saveModel(model)
-    writer.flush()
-    writer.close()
+
+    if log_runs:
+        writer.flush()
+        writer.close()
 
 
 def saveModel(model):
@@ -99,6 +111,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--lr', default=.001, type=float)
     parser.add_argument('--log', dest='log', action='store_true', help='Flag to log training loss/params for tensorboard visualizations')
+    parser.add_argument('--batch_size', type=int, required=False, default=32, help='Number of training samples per iteration')
     parser.add_argument('--no-log', dest='log', action='store_false', help='Flag to turn off tensorboard logging')
     parser.set_defaults(log=True)
 

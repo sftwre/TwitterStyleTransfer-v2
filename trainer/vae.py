@@ -3,44 +3,47 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
+from utils import *
 
 class VAE(nn.Module):
 
-    def __init__(self, vocab_size, h_dim=64, z_dim=64, c_dim=4, gpu=False):
+    def __init__(self, indexer, vocab_size, h_dim=64, z_dim=64, c_dim=4, gpu=False):
         super(VAE, self).__init__()
 
 
         self.gpu = gpu
         self.emb_dim = h_dim
         self.z_dim = z_dim
-        self.vocab_size = vocab_size
+        self.output_sz = len(indexer)
         self.c_dim = c_dim
+        self.indexer = indexer
         self.p_word_dropout = 0.5
-        self.unk_idx = 0
-        self.pad_idx = 1
-        self.start_idx = 2
-        self.eos_idx = 3
+        self.unk_idx = self.indexer.index_of(UNK_SYMBOL)
+        self.pad_idx = self.indexer.index_of(PAD_SYMBOL)
+        self.start_idx = self.indexer.index_of(SOS_SYMBOL)
+        self.eos_idx = self.indexer.index_of(EOS_SYMBOL)
         self.max_tweet_len = 15
         self.gpu = gpu
         self.device = 'cpu' if not gpu else 'cuda:0'
 
+        # TODO load ElMo embeddings
         # embedding layer
-        self.embedder = nn.Embedding(vocab_size, h_dim, self.pad_idx)
+        self.embedder = nn.Embedding(self.output_sz, self.emb_dim)
 
         """
         encoder is uni-directional LSTM with fully connected 
         layer on top of last hidden unit to model the mean
         and log variance of latent space.
         """
-        self.encoder = nn.LSTM(self.emb_dim, h_dim)
+        self.encoder = nn.LSTM(self.emb_dim, h_dim, num_layers=1, batch_first=True)
         self.q_mu = nn.Linear(h_dim, z_dim)
         self.q_logvar = nn.Linear(h_dim, z_dim)
 
         """
         decoder is LSTM with embeddings, z, and c as inputs
         """
-        self.decoder = nn.LSTM(self.emb_dim+z_dim+c_dim, z_dim+c_dim, dropout=0.5)
-        self.decoder_fc = nn.Linear(z_dim + c_dim, vocab_size)
+        self.decoder = nn.LSTM(self.emb_dim+z_dim+c_dim, z_dim+c_dim, num_layers=1, batch_first=True)
+        self.decoder_fc = nn.Linear(z_dim + c_dim, self.output_sz)
 
         # discriminator
         self.conv1 = nn.Conv2d(1, 100, (3, self.emb_dim))
@@ -66,28 +69,22 @@ class VAE(nn.Module):
         self.discriminator_params = filter(lambda t: t.requires_grad, self.discriminator.parameters())
 
         if self.gpu:
-            print(self.gpu)
             self.cuda('cuda:0')
 
-    def forwardEncoder(self, inputs):
+    def forwardEncoder(self, inputs, input_lens):
         """
         Passes batch of sentences through embedding layer
+        and then through the encoder.
         :param inputs:
         :return:
         """
         inputs = self.embedder(inputs)
-        return self.forwardEncoderEmb(inputs)
 
-    def forwardEncoderEmb(self, inputs):
-        """
-        Passes embeddings through encoder
-        :param inputs:
-        :return: mean and log-variance of input distribution
-        """
-        _, (h, c) = self.encoder(inputs, None)
+        packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens, batch_first=True, enforce_sorted=False)
+        _, (h, c) = self.encoder(packed_embeddings)
 
         # pass latent space through mu and logvar layers
-        h = h.view(-1, self.emb_dim)
+        h = h.reshape(-1, self.emb_dim)
         mu = self.q_mu(h)
         logvar = self.q_logvar(h)
 
@@ -97,7 +94,7 @@ class VAE(nn.Module):
     def sample_z(self, mu, logvar):
         """
         draws a z sample from the code distribution p_model(z)
-        using the reparameterization trick z = mu + std * eps
+        using the re-parameterization trick z = mu + std * eps
         :param mu:
         :param logvar:
         :return:
@@ -123,7 +120,7 @@ class VAE(nn.Module):
         c = c.cuda() if self.gpu else c
         return c
 
-    def forwardDecoder(self, inputs, z, c, initC):
+    def forwardDecoder(self, inputs, z, c, init_c):
         """
         passes embeddings, encoding, and controllable
         params through decoder to generate a new tweet
@@ -132,25 +129,59 @@ class VAE(nn.Module):
         :param c:
         :return:
         """
-        decInputs = self.word_dropout(inputs)
 
-        seqLen = decInputs.size(0)
+        # TODO test model with word dropout
+        # decInputs = self.word_dropout(inputs)
 
-        initH = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
-        initC = torch.cat([initC, c.unsqueeze(0)], dim=2)
-        inputsEmb = self.embedder(decInputs)
-        inputsEmb = torch.cat([inputsEmb, initH.repeat(seqLen, 1, 1)], 2)
+        # TODO create more sophisticated Encoder/Decoder
 
-        outputs, _ = self.decoder(inputsEmb, (initH, initC))
-        seqLen, bsize, _ = outputs.size()
+        # re-construction loss
+        recon_loss = 0.0
+        batch_sz = inputs.shape[0]
+        target_len = inputs.shape[1]
 
-        outputs = outputs.view(seqLen*bsize, -1)
+        # latent and parameter code are initial hidden state of decoder
+        init_h = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
+        init_c = torch.cat([init_c, c.unsqueeze(0)], dim=2)
+
+        # initial hidden state
+        h_n = (init_h, init_c)
+
+        # initial input token
+        y_step = torch.tensor([[self.indexer.index_of(SOS_SYMBOL)] * batch_sz]).reshape(batch_sz, 1)
+
+        # predict next token using teacher forcing
+        for t in range(target_len):
+
+            word_embeddings = self.embedder(y_step)
+
+            # concat new latent and parameter code
+            z_c = h_n[0].permute((1, 0, 2))
+            dec_inputs = torch.cat([word_embeddings, z_c], dim=2)
+
+            outputs, h_n = self.decoder(dec_inputs, h_n)
+
+            logits = self.decoder_fc(outputs).reshape(-1, self.output_sz)
+            log_probs = F.log_softmax(logits, dim=1)
+
+            target = inputs[:, t]
+            recon_loss += F.nll_loss(log_probs, target, ignore_index=self.pad_idx)
+
+            # teacher forcing, next input is current target
+            y_step = target.reshape(batch_sz, 1)
+
+            # target_len, bsize, _ = outputs.size()
+            #
+            # outputs = outputs.reshape(target_len*bsize, -1)
 
         # logits for generated words
-        y = self.decoder_fc(outputs)
-        y = y.view(seqLen, bsize, self.vocab_size)
+        # y = self.decoder_fc(outputs)
+        # y = y.view(target_len, bsize, self.output_sz)
 
-        return y
+        # compute mean loss across time steps
+        recon_loss /= target_len
+
+        return recon_loss
 
     def forwardDiscriminator(self, inputs):
         """
@@ -183,26 +214,26 @@ class VAE(nn.Module):
 
         return c_hat
 
-    def forward(self, inputs, use_c_prior=True):
+    def forward(self, inputs, input_lens, use_c_prior=True):
         """
-        tweet: sequence of word indices.
+        inputs: batch of padded inputs
         use_c_prior: whether to sample c from prior or from discriminator.
 
         Returns: reconstruction loss of VAE and KL-div loss of VAE.
         """
         self.train()
 
-        size = inputs.size(1)
+        size = inputs.shape[0]
 
-        pad_words = torch.LongTensor([1]).repeat(1, size)
-        pad_words = pad_words.cuda() if self.gpu else pad_words
+        # pad_words = torch.LongTensor([1]).repeat(1, size)
+        # pad_words = pad_words.cuda() if self.gpu else pad_words
 
         enc_inputs = inputs
         dec_inputs = inputs
-        dec_targets = torch.cat([inputs[1:], pad_words], dim=0)
+        # dec_targets = torch.cat([inputs[1:], pad_words], dim=0)
 
         # Encoder: sentence -> z
-        mu, logvar, cell_state = self.forwardEncoder(enc_inputs)
+        mu, logvar, cell_state = self.forwardEncoder(enc_inputs, input_lens)
         z = self.sample_z(mu, logvar)
 
         if use_c_prior:
@@ -210,10 +241,9 @@ class VAE(nn.Module):
         else:
             c = self.forwardDiscriminator(inputs.transpose(0, 1))
 
-        # Decoder: sentence -> y
-        y1 = self.forwardDecoder(dec_inputs, z, c, cell_state)
+        recon_loss = self.forwardDecoder(dec_inputs, z, c, cell_state)
 
-        recon_loss = F.cross_entropy(y1.view(-1, self.vocab_size), dec_targets.view(-1), size_average=True)
+        # recon_loss = F.cross_entropy(y1.view(-1, self.output_sz), dec_targets.view(-1), size_average=True)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
 
         return recon_loss, kl_loss
@@ -246,55 +276,52 @@ class VAE(nn.Module):
         self.eval()
 
         word = torch.LongTensor([self.start_idx])
-        word = word.cuda() if self.gpu else word
 
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
-        h = torch.cat([z, c], dim=2)
-        c_0 = torch.zeros(h.shape)
+        h_0 = torch.cat([z, c], dim=2)
+        c_0 = torch.zeros(h_0.shape)
 
-        if self.gpu:
-            c_0 = c_0.cuda()
-
-        state = (h, c_0)
+        init_h = (h_0, c_0)
 
         outputs = []
 
-        if raw:
-            outputs.append(self.start_idx)
+        with torch.no_grad():
 
-        for i in range(self.max_tweet_len):
-            emb = self.embedder(word).view(1, 1, -1)
-            emb = torch.cat([emb, z, c], 2)
+            if raw:
+                outputs.append(self.start_idx)
 
-            output, h = self.decoder(emb, state)
-            y = self.decoder_fc(output).view(-1)
-            y = F.softmax(y/temp, dim=0)
+            for i in range(self.max_tweet_len):
+                emb = self.embedder(word).view(1, 1, -1)
+                emb = torch.cat([emb, z, c], 2)
 
-            if not beam:
-                idx = torch.multinomial(y, 1)
+                output, h_0 = self.decoder(emb, init_h)
+                logits = self.decoder_fc(output).view(-1)
 
-                word = torch.LongTensor([int(idx)])
-                word = word.cuda() if self.gpu else word
+                # TODO re-incorperate temperature annealing
+                # y = F.softmax(y/temp, dim=0)
+                log_probs = F.log_softmax(logits)
+                y_hat = torch.argmax(log_probs)
 
-                idx = int(idx)
+                # idx = torch.multinomial(y_hat, 1)
 
-                if not raw and idx == self.eos_idx:
+                # word = torch.LongTensor([int(idx)])
+                # word = word.cuda() if self.gpu else word
+
+                # idx = int(idx)
+
+                if not raw and y_hat == self.eos_idx:
                     break
 
-                outputs.append(idx)
-
-            else:
-                outputs.append(y)
+                outputs.append(y_hat.item())
 
         # Back to default state: train
         self.train()
 
         if raw:
             outputs = torch.LongTensor(outputs).unsqueeze(0)
-            return outputs.cuda() if self.gpu else outputs
-        else:
-            return outputs
+
+        return outputs
 
     def generate_soft_embed(self, mbsize, temp=1):
         """
