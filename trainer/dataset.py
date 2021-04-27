@@ -7,7 +7,7 @@ from utils import *
 
 class TwitterDataset():
 
-    def __init__(self, batch_size=32, gpu=False):
+    def __init__(self, batch_size, gpu=False):
 
         self.gpu = gpu
         self.batch_size = batch_size
