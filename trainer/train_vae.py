@@ -54,6 +54,8 @@ def main(args):
         device_ids = [i for i in range(n_devices)]
         model = nn.DataParallel(model, device_ids)
 
+    model.to(device)
+
     # for each epoch, train on data
     for e in range(epochs):
 
