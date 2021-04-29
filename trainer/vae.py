@@ -268,6 +268,7 @@ class VAE(nn.Module):
             emb = torch.cat([emb, z, c], 2)
 
             output, h = self.decoder(emb, state)
+            state = h
             y = self.decoder_fc(output).view(-1)
             y = F.softmax(y/temp, dim=0)
 
@@ -295,6 +296,78 @@ class VAE(nn.Module):
             return outputs.cuda() if self.gpu else outputs
         else:
             return outputs
+
+    def do_beam(self, z, c, k=5, raw=False, temp=1):
+        """
+        Sample single sentence from p(x|z,c) according to given temperature.
+        `raw = True` means this returns sentence as in dataset which is useful
+        to train discriminator. `False` means that this will return list of
+        `word_idx` which is useful for evaluation.
+        """
+        self.eval()
+        ls = nn.LogSoftmax()
+        word = torch.LongTensor([self.start_idx])
+        word = word.cuda() if self.gpu else word
+
+        z, c = z.view(1, 1, -1), c.view(1, 1, -1)
+
+        h = torch.cat([z, c], dim=2)
+        c_0 = torch.zeros(h.shape)
+
+        if self.gpu:
+            c_0 = c_0.cuda()
+
+        state = (h, c_0)
+
+        emb = self.embedder(word).view(1, 1, -1)
+        emb = torch.cat([emb, z, c], 2)
+
+        output, h = self.decoder(emb, state)
+        state = h
+        y = self.decoder_fc(output).view(-1)
+        y = ls(y/temp)
+        myBeam = Beam(k)
+        toloop = y.detach().numpy()
+
+        for i in range(len(toloop)):
+            wordi = toloop[i]
+            indice = torch.LongTensor([i])
+            indice = indice.cuda() if self.gpu else indice
+            emb = self.embedder(word).view(1, 1, -1)
+            emb = torch.cat([emb, z, c], 2)
+            if raw:
+                myBeam.add([[self.start_idx, i], emb, state], wordi) 
+            else:
+                myBeam.add([[i], emb, state], wordi)
+
+        for s in range(self.max_tweet_len - 1):
+            newBeam = Beam(k)
+            for elt, score in myBeam.get_elts_and_scores():
+                output, h = self.decoder(elt[1], elt[2])
+                state = h
+                y = self.decoder_fc(output).view(-1)
+                y = ls(y/temp)
+                toloop = y.detach().numpy()
+                
+                for i in range(len(toloop)):
+                    wordi = toloop[i]
+                    indice = torch.LongTensor([i])
+                    indice = indice.cuda() if self.gpu else indice
+                    emb = self.embedder(word).view(1, 1, -1)
+                    emb = torch.cat([emb, z, c], 2)
+                    newBeam.add([elt[0] + [i], emb, state], score + wordi)
+            
+            myBeam = newBeam   
+
+        # Back to default state: train
+        self.train()
+
+        # if raw:
+        #     outputs = torch.LongTensor(outputs).unsqueeze(0)
+        #     return outputs.cuda() if self.gpu else outputs
+        # else:
+        #     return outputs
+        return myBeam.head()[0]
 
     def generate_soft_embed(self, mbsize, temp=1):
         """
@@ -390,5 +463,84 @@ class VAE(nn.Module):
         data[mask] = self.unk_idx
 
         return data
+
+class Beam(object):
+    """
+    Beam data structure. Maintains a list of scored elements like a Counter, but only keeps the top n
+    elements after every insertion operation. Insertion is O(n) (list is maintained in
+    sorted order), access is O(1). Still fast enough for practical purposes for small beams.
+    """
+    def __init__(self, size):
+        self.size = size
+        self.elts = []
+        self.scores = []
+
+    def __repr__(self):
+        return "Beam(" + repr(list(self.get_elts_and_scores())) + ")"
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __len__(self):
+        return len(self.elts)
+
+    def add(self, elt, score):
+        """
+        Adds the element to the beam with the given score if the beam has room or if the score
+        is better than the score of the worst element currently on the beam
+
+        :param elt: element to add
+        :param score: score corresponding to the element
+        """
+        if len(self.elts) == self.size and score < self.scores[-1]:
+            # Do nothing because this element is the worst
+            return
+        # If the list contains the item with a lower score, remove it
+        i = 0
+        while i < len(self.elts):
+            if self.elts[i] == elt and score > self.scores[i]:
+                del self.elts[i]
+                del self.scores[i]
+            i += 1
+        # If the list is empty, just insert the item
+        if len(self.elts) == 0:
+            self.elts.insert(0, elt)
+            self.scores.insert(0, score)
+        # Find the insertion point with binary search
+        else:
+            lb = 0
+            ub = len(self.scores) - 1
+            # We're searching for the index of the first element with score less than score
+            while lb < ub:
+                m = (lb + ub) // 2
+                # Check > because the list is sorted in descending order
+                if self.scores[m] > score:
+                    # Put the lower bound ahead of m because all elements before this are greater
+                    lb = m + 1
+                else:
+                    # m could still be the insertion point
+                    ub = m
+            # lb and ub should be equal and indicate the index of the first element with score less than score.
+            # Might be necessary to insert at the end of the list.
+            if self.scores[lb] > score:
+                self.elts.insert(lb + 1, elt)
+                self.scores.insert(lb + 1, score)
+            else:
+                self.elts.insert(lb, elt)
+                self.scores.insert(lb, score)
+            # Drop and item from the beam if necessary
+            if len(self.scores) > self.size:
+                self.elts.pop()
+                self.scores.pop()
+
+    def get_elts(self):
+        return self.elts
+
+    def get_elts_and_scores(self):
+        return zip(self.elts, self.scores)
+
+    def head(self):
+        return self.elts[0]
+
 
 
