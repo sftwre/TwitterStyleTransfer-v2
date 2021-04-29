@@ -65,7 +65,7 @@ def main(args):
             # zero out previous gradients
             optimizer.zero_grad()
 
-            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1))
+            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1)).cpu()
 
             # cast to correct device
             padded_inputs = padded_inputs.to(device)

@@ -7,11 +7,9 @@ from utils import *
 
 class VAE(nn.Module):
 
-    def __init__(self, indexer, vocab_size, h_dim=64, z_dim=64, c_dim=4, gpu=False):
+    def __init__(self, indexer, h_dim=64, z_dim=64, c_dim=4):
         super(VAE, self).__init__()
 
-
-        self.gpu = gpu
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.output_sz = len(indexer)
@@ -23,8 +21,6 @@ class VAE(nn.Module):
         self.start_idx = self.indexer.index_of(SOS_SYMBOL)
         self.eos_idx = self.indexer.index_of(EOS_SYMBOL)
         self.max_tweet_len = 15
-        self.gpu = gpu
-        self.device = 'cpu' if not gpu else 'cuda:0'
 
         # TODO load ElMo embeddings
         # embedding layer
@@ -68,8 +64,6 @@ class VAE(nn.Module):
 
         self.discriminator_params = filter(lambda t: t.requires_grad, self.discriminator.parameters())
 
-        if self.gpu:
-            self.cuda('cuda:0')
 
     def forwardEncoder(self, inputs, input_lens):
         """
@@ -100,12 +94,12 @@ class VAE(nn.Module):
         :return:
         """
         eps = torch.rand(self.z_dim)
-        eps = eps.cuda() if self.gpu else eps
+        # eps = eps.cuda() if self.gpu else eps
         return mu + torch.exp(logvar/2) * eps
 
     def sample_z_prior(self, size):
         z = torch.rand(size, self.z_dim)
-        z = z.cuda() if self.gpu else z
+        # z = z.cuda() if self.gpu else z
         return z
 
     def sample_c_prior(self, size):
@@ -117,7 +111,7 @@ class VAE(nn.Module):
         """
         n = self.c_dim
         c = torch.from_numpy(np.random.multinomial(1, [1./n]*n, size).astype(np.float32))
-        c = c.cuda() if self.gpu else c
+        # c = c.cuda() if self.gpu else c
         return c
 
     def forwardDecoder(self, inputs, z, c, init_c):
@@ -359,13 +353,13 @@ class VAE(nn.Module):
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
         word = torch.LongTensor([self.start_idx])
-        word = word.cuda() if self.gpu else word
-        word = word # '<start>'
+        # word = word.cuda() if self.gpu else word
+        # word = word # '<start>'
         emb = self.embedder(word).view(1, 1, -1)
         emb = torch.cat([emb, z, c], 2)
 
         h = torch.cat([z, c], dim=2)
-        zeros = torch.zeros((1, 1, self.z_dim)).to(self.device)
+        zeros = torch.zeros((1, 1, self.z_dim))
 
         c_0 = torch.cat([zeros, c], dim=2)
 
@@ -395,9 +389,9 @@ class VAE(nn.Module):
         outputs = torch.cat(outputs, dim=0).unsqueeze(0)
 
         # Back to default state: train
-        self.train()
+        # self.train()
 
-        return outputs.cuda() if self.gpu else outputs
+        return outputs
 
     def word_dropout(self, inputs):
         """
@@ -409,9 +403,6 @@ class VAE(nn.Module):
         mask = torch.from_numpy(
             np.random.binomial(1, p=self.p_word_dropout, size=tuple(data.size())).astype('uint8')
         )
-
-        if self.gpu:
-            mask = mask.cuda()
 
         # Set to <unk>
         data[mask] = self.unk_idx
