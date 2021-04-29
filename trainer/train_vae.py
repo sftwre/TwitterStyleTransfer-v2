@@ -29,7 +29,7 @@ def main(args):
     if log_runs:
         writer = SummaryWriter()
 
-    dataset = TwitterDataset(batch_size=batch_sz, gpu=gpu)
+    dataset = TwitterDataset(batch_size=batch_sz)
 
     # controllable parameter for each account
     c_dim = dataset.n_accounts
