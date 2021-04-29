@@ -77,9 +77,9 @@ def main(args):
             loss = recon_loss + kld_weight * kl_loss
 
             if log_runs:
-                writer.add_scalar('VAE/recon_loss', recon_loss, e)
-                writer.add_scalar('VAE/kl_loss', kl_loss, e)
-                writer.add_scalar('VAE/loss', loss, e)
+                writer.add_scalar('VAE/recon_loss', recon_loss.item(), e)
+                writer.add_scalar('VAE/kl_loss', kl_loss.item(), e)
+                writer.add_scalar('VAE/loss', loss.item(), e)
 
             # Anneal kl_weight
             if e > kld_start_inc and kld_weight < kld_max:
