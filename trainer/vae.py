@@ -145,6 +145,9 @@ class VAE(nn.Module):
         # initial input token
         y_step = torch.tensor([[self.indexer.index_of(SOS_SYMBOL)] * batch_sz]).reshape(batch_sz, 1)
 
+        if self.gpu:
+            y_step = y_step.cuda()
+
         # predict next token using teacher forcing
         for t in range(target_len):
 
