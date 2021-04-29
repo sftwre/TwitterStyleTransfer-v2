@@ -45,6 +45,8 @@ def main(args):
     # optimization algorithm
     optimizer = optim.Adam(model.vae_params, lr=lr)
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
     n_devices = torch.cuda.device_count()
 
     # parallelize training if possible
@@ -58,14 +60,17 @@ def main(args):
         interval = 0
         dataset.resetTrainBatches()
 
-        for inputs, labels in dataset.trainIterator:
+        for padded_inputs, padded_labels in dataset.trainIterator:
 
             # zero out previous gradients
             optimizer.zero_grad()
 
-            input_lens = torch.tensor(np.count_nonzero(inputs, axis=1))
+            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1))
 
-            recon_loss, kl_loss = model.forward(inputs, input_lens)
+            # cast to correct device
+            padded_inputs = padded_inputs.to(device)
+
+            recon_loss, kl_loss = model.forward(padded_inputs, input_lens)
 
             loss = recon_loss + kld_weight * kl_loss
 

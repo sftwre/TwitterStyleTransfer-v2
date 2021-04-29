@@ -7,10 +7,7 @@ from utils import *
 
 class TwitterDataset():
 
-    def __init__(self, batch_size, gpu=False):
-
-        self.gpu = gpu
-        self.batch_size = batch_size
+    def __init__(self, batch_size):
 
         vocabPath = './data/vocab.txt'
         trainPath = './data/tweets.train.txt'
@@ -18,6 +15,8 @@ class TwitterDataset():
 
         testPath = './data/tweets.test.txt'
         testLabelsPath = './data/tweets.test.labels'
+
+        self.batch_size = batch_size
 
         # load vocab
         self.vocab = self._loadVocab(vocabPath)
@@ -134,7 +133,7 @@ class TwitterDataset():
             max_len = np.asarray(list(map(lambda x: len(x), inputs))).max()
 
             # pad inputs to max len
-            padded_inputs = np.array([[ex[i] if i < len(ex) else indexer.index_of(UNK_SYMBOL) for i in range(max_len)] for ex in inputs])
+            padded_inputs = np.array([[ex[i] if i < len(ex) else indexer.index_of(PAD_SYMBOL) for i in range(max_len)] for ex in inputs])
             inputs = padded_inputs
 
         else:
@@ -177,14 +176,10 @@ class TwitterDataset():
             batch_tweets = [ex.split() for ex in text[start:end]]
             batch_labels = labels[start:end]
 
-            encodedText = self._batchToIdxs(batch_tweets)
-            encodedLabels = self._batchToIdxs(batch_labels, labels=True)
+            padded_inputs = self._batchToIdxs(batch_tweets)
+            padded_labels = self._batchToIdxs(batch_labels, labels=True)
 
-            if self.gpu:
-                encodedText = encodedText.cuda()
-                encodedLabels = encodedLabels.cuda()
-
-            yield encodedText, encodedLabels
+            yield padded_inputs, padded_labels
 
     def resetTrainBatches(self):
         self.trainIterator = self._dataIterator(self.X_train, self.y_train)
