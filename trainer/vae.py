@@ -7,9 +7,10 @@ from utils import *
 
 class VAE(nn.Module):
 
-    def __init__(self, indexer, h_dim=64, z_dim=64, c_dim=4):
+    def __init__(self, indexer, h_dim=64, z_dim=64, c_dim=4, gpu=False):
         super(VAE, self).__init__()
 
+        self.gpu = gpu
         self.emb_dim = h_dim
         self.z_dim = z_dim
         self.output_sz = len(indexer)
@@ -74,7 +75,7 @@ class VAE(nn.Module):
         """
         inputs = self.embedder(inputs)
 
-        packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens, batch_first=True, enforce_sorted=False)
+        packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens.cpu(), batch_first=True, enforce_sorted=False)
         _, (h, c) = self.encoder(packed_embeddings)
 
         # pass latent space through mu and logvar layers
@@ -94,12 +95,12 @@ class VAE(nn.Module):
         :return:
         """
         eps = torch.rand(self.z_dim)
-        # eps = eps.cuda() if self.gpu else eps
+        eps = eps.cuda() if self.gpu else eps
         return mu + torch.exp(logvar/2) * eps
 
     def sample_z_prior(self, size):
         z = torch.rand(size, self.z_dim)
-        # z = z.cuda() if self.gpu else z
+        z = z.cuda() if self.gpu else z
         return z
 
     def sample_c_prior(self, size):
@@ -111,7 +112,7 @@ class VAE(nn.Module):
         """
         n = self.c_dim
         c = torch.from_numpy(np.random.multinomial(1, [1./n]*n, size).astype(np.float32))
-        # c = c.cuda() if self.gpu else c
+        c = c.cuda() if self.gpu else c
         return c
 
     def forwardDecoder(self, inputs, z, c, init_c):
@@ -353,7 +354,7 @@ class VAE(nn.Module):
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
         word = torch.LongTensor([self.start_idx])
-        # word = word.cuda() if self.gpu else word
+        word = word.cuda() if self.gpu else word
         # word = word # '<start>'
         emb = self.embedder(word).view(1, 1, -1)
         emb = torch.cat([emb, z, c], 2)

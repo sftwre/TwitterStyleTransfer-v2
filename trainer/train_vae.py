@@ -34,7 +34,7 @@ def main(args):
     # controllable parameter for each account
     c_dim = dataset.n_accounts
 
-    model = VAE(dataset.tweet_indexer, h_dim, z_dim, c_dim)
+    model = VAE(dataset.tweet_indexer, h_dim, z_dim, c_dim, gpu=gpu)
 
     # Annealing for KL term
     kld_start_inc = 3000
@@ -67,7 +67,7 @@ def main(args):
             # zero out previous gradients
             optimizer.zero_grad()
 
-            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1)).cpu()
+            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1))
 
             # cast to correct device
             padded_inputs = padded_inputs.to(device)
