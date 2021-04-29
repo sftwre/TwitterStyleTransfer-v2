@@ -1,5 +1,6 @@
 import os
 import torch
+import torch.nn as nn
 import argparse
 import numpy as np
 from torch.utils.tensorboard import SummaryWriter
@@ -18,8 +19,12 @@ def main(args):
     z_dim = args.z_dim
     h_dim = args.h_dim
     batch_sz = args.batch_size
+    device_ids = args.devices
     lr_decay_every = 5
     report_interval = 100
+
+    # mask available devices
+    os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
     if log_runs:
         writer = SummaryWriter()
@@ -30,6 +35,13 @@ def main(args):
     c_dim = dataset.n_accounts
 
     model = VAE(dataset.tweet_indexer, dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
+
+    n_devices = torch.cuda.device_count()
+
+    # parallelize training if possible
+    if n_devices > 1:
+        device_ids = [i for i in range(n_devices)]
+        model = nn.DataParallel(model, device_ids)
 
     # Annealing for KL term
     kld_start_inc = 3000
@@ -119,6 +131,7 @@ if __name__ == '__main__':
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='Flag to run model on cpu')
     parser.set_defaults(gpu=True)
 
+    parser.add_argument('--devices', required=True, type=str, help='Device ids to train model on')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
     parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')
