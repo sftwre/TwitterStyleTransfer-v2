@@ -12,12 +12,12 @@ class TwitterDataset():
         self.gpu = gpu
         self.batch_size = batch_size
 
-        vocabPath = '../data/vocab.txt'
-        trainPath = '../data/tweets.train.txt'
-        trainLabelsPath = '../data/tweets.train.labels'
+        vocabPath = './data/vocab.txt'
+        trainPath = './data/tweets.train.txt'
+        trainLabelsPath = './data/tweets.train.labels'
 
-        testPath = '../data/tweets.test.txt'
-        testLabelsPath = '../data/tweets.test.labels'
+        testPath = './data/tweets.test.txt'
+        testLabelsPath = './data/tweets.test.labels'
 
         # load vocab
         self.vocab = self._loadVocab(vocabPath)

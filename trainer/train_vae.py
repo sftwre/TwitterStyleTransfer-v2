@@ -36,13 +36,6 @@ def main(args):
 
     model = VAE(dataset.tweet_indexer, dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
 
-    n_devices = torch.cuda.device_count()
-
-    # parallelize training if possible
-    if n_devices > 1:
-        device_ids = [i for i in range(n_devices)]
-        model = nn.DataParallel(model, device_ids)
-
     # Annealing for KL term
     kld_start_inc = 3000
     kld_weight = 0.01
@@ -51,6 +44,13 @@ def main(args):
 
     # optimization algorithm
     optimizer = optim.Adam(model.vae_params, lr=lr)
+
+    n_devices = torch.cuda.device_count()
+
+    # parallelize training if possible
+    if n_devices > 1:
+        device_ids = [i for i in range(n_devices)]
+        model = nn.DataParallel(model, device_ids)
 
     # for each epoch, train on data
     for e in range(epochs):
