@@ -25,7 +25,7 @@ class VAE(nn.Module):
 
         # TODO load ElMo embeddings
         # embedding layer
-        self.embedder = nn.Embedding(self.output_sz, self.emb_dim)
+        self.embedder = nn.Sequential(nn.Embedding(self.output_sz, self.emb_dim), nn.Dropout(p=0.2))
 
         """
         encoder is uni-directional LSTM with fully connected 
@@ -65,6 +65,11 @@ class VAE(nn.Module):
 
         self.discriminator_params = filter(lambda t: t.requires_grad, self.discriminator.parameters())
 
+        # initialize linear layers
+        self.init_weights()
+
+    def init_weights(self):
+        nn.init.xavier_uniform_(self.decoder_fc.weight)
 
     def forwardEncoder(self, inputs, input_lens):
         """
