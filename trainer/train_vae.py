@@ -76,27 +76,43 @@ def main(args):
 
             loss = recon_loss + kld_weight * kl_loss
 
-            if log_runs:
-                writer.add_scalar('VAE/recon_loss', recon_loss.item(), e)
-                writer.add_scalar('VAE/kl_loss', kl_loss.item(), e)
-                writer.add_scalar('VAE/loss', loss.item(), e)
-
             # Anneal kl_weight
             if e > kld_start_inc and kld_weight < kld_max:
                 kld_weight += kld_inc
 
-            loss.backward()
+            # sum loss across multiple GPU's
+            if isinstance(model, nn.DataParallel):
+                loss.sum().backward()
+            else:
+                loss.backward()
+
             # grad_norm = torch.nn.utils.clip_grad_norm(model.vae_params, 5)
             optimizer.step()
 
-            if interval % report_interval == 0:
-                z = model.sample_z_prior(1)
-                c = model.sample_c_prior(1)
+            recon_loss = recon_loss.sum().item()
+            kl_loss = kl_loss.sum().item()
+            loss = loss.sum().item()
 
-                sample_idxs = model.sample_sentence(z, c)
+            if log_runs:
+                writer.add_scalar('VAE/recon_loss', recon_loss, e)
+                writer.add_scalar('VAE/kl_loss', kl_loss, e)
+                writer.add_scalar('VAE/loss', loss, e)
+
+
+            if interval % report_interval == 0:
+
+                if isinstance(model, nn.DataParallel):
+                    z = model.module.sample_z_prior(1)
+                    c = model.module.sample_c_prior(1)
+                    sample_idxs = model.module.sample_sentence(z, c)
+                else:
+                    z = model.sample_z_prior(1)
+                    c = model.sample_c_prior(1)
+                    sample_idxs = model.sample_sentence(z, c)
+
                 sample_sent = dataset.idxs2sentence(sample_idxs)
 
-                print(f'Epoch-{e}; Loss: {loss.item():.4f}; Recon: {recon_loss.item():.4f}; KL: {kl_loss.item():.4f}')
+                print(f'Epoch-{e}; Loss: {loss:.4f}; Recon: {recon_loss:.4f}; KL: {kl_loss:.4f}')
                 print(f'Sample: "{sample_sent}"', end='\n')
 
                 if log_runs:
@@ -108,6 +124,10 @@ def main(args):
                 param_group['lr'] = new_lr
 
             interval += 1
+
+    # detach from gpu's
+    if isinstance(model, nn.DataParallel):
+        model = model.module
 
     saveModel(model)
 

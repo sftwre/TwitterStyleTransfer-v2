@@ -273,14 +273,19 @@ class VAE(nn.Module):
         """
         self.eval()
 
-        word = torch.LongTensor([self.start_idx])
+        y_step = torch.tensor([self.start_idx]).reshape(1,1)
 
-        z, c = z.view(1, 1, -1), c.view(1, 1, -1)
+        if self.gpu:
+            y_step = y_step.cuda()
+
+        z = z.reshape(1, 1, -1)
+        c = c.reshape(1, 1, -1)
 
         h_0 = torch.cat([z, c], dim=2)
-        c_0 = torch.zeros(h_0.shape)
+        c_0 = torch.zeros(h_0.shape).cuda() if self.gpu else torch.zeros(h_0.shape)
 
-        init_h = (h_0, c_0)
+        # init hidden state
+        h_n = (h_0, c_0)
 
         outputs = []
 
@@ -290,10 +295,10 @@ class VAE(nn.Module):
                 outputs.append(self.start_idx)
 
             for i in range(self.max_tweet_len):
-                emb = self.embedder(word).view(1, 1, -1)
+                emb = self.embedder(y_step).view(1, 1, -1)
                 emb = torch.cat([emb, z, c], 2)
 
-                output, h_0 = self.decoder(emb, init_h)
+                output, h_n = self.decoder(emb, h_n)
                 logits = self.decoder_fc(output).view(-1)
 
                 # TODO re-incorperate temperature annealing
@@ -306,10 +311,11 @@ class VAE(nn.Module):
                 # word = torch.LongTensor([int(idx)])
                 # word = word.cuda() if self.gpu else word
 
-                # idx = int(idx)
-
                 if not raw and y_hat == self.eos_idx:
                     break
+
+                # next input is predicted token
+                y_step = y_hat
 
                 outputs.append(y_hat.item())
 
