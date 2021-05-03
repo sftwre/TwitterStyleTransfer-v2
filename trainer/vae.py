@@ -32,9 +32,12 @@ class VAE(nn.Module):
         layer on top of last hidden unit to model the mean
         and log variance of latent space.
         """
-        self.encoder = nn.LSTM(self.emb_dim, h_dim, num_layers=1, batch_first=True)
-        self.q_mu = nn.Linear(2*h_dim, z_dim)
-        self.q_logvar = nn.Linear(2*h_dim, z_dim)
+        self.encoder = nn.LSTM(self.emb_dim, h_dim, num_layers=1, batch_first=True, bidirectional=True)
+        self.reduce_h = nn.Linear(2*h_dim, h_dim)
+        self.reduce_c = nn.Linear(2*h_dim, h_dim)
+        self.reduce_h_c = nn.Linear(2*h_dim, h_dim)
+        self.q_mu = nn.Linear(h_dim, z_dim)
+        self.q_logvar = nn.Linear(h_dim, z_dim)
 
         """
         decoder is LSTM with embeddings, z, and c as inputs
@@ -70,6 +73,11 @@ class VAE(nn.Module):
 
     def init_weights(self):
         nn.init.xavier_uniform_(self.decoder_fc.weight)
+        nn.init.xavier_uniform_(self.q_mu.weight)
+        nn.init.xavier_uniform_(self.q_logvar.weight)
+        nn.init.xavier_uniform_(self.reduce_h.weight)
+        nn.init.xavier_uniform_(self.reduce_c.weight)
+        nn.init.xavier_uniform_(self.reduce_h_c.weight)
 
     def forwardEncoder(self, inputs, input_lens):
         """
@@ -83,10 +91,18 @@ class VAE(nn.Module):
         packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens.cpu(), batch_first=True, enforce_sorted=False)
         _, (h, c) = self.encoder(packed_embeddings)
 
-        # pass latent space through mu and logvar layers
-        h = h.reshape(-1, self.emb_dim)
-        c = c.reshape(-1, self.emb_dim)
-        h_n = torch.cat([h, c], dim=1)
+        # reduce hidden state and cell state
+        h_, c_ = torch.cat([h[0], h[1]], dim=1), torch.cat([c[0], c[1]], dim=1)
+
+        new_h = self.reduce_h(h_)
+        new_c = self.reduce_c(c_)
+
+        # new hidden state
+        h_n = torch.cat([new_h, new_c], dim=1)
+
+        h_n = self.reduce_h_c(h_n)
+
+        # pass hidden state through mu and logvar layers to learn latent space
         mu = self.q_mu(h_n)
         logvar = self.q_logvar(h_n)
 
