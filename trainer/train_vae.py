@@ -24,7 +24,8 @@ def main(args):
     report_interval = 100
 
     # mask available devices
-    os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
+    if gpu and device_ids is not None:
+        os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
     if log_runs:
         writer = SummaryWriter()
@@ -158,7 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--cpu', dest='gpu', action='store_false', help='Flag to run model on cpu')
     parser.set_defaults(gpu=True)
 
-    parser.add_argument('--devices', required=True, type=str, help='Device ids to train model on')
+    parser.add_argument('--devices', required=False, type=str, help='Device ids to train model on')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
     parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
     parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')
