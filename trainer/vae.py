@@ -146,6 +146,9 @@ class VAE(nn.Module):
         init_h = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
         init_c = torch.zeros(init_h.shape)
 
+        if self.gpu:
+            init_c = init_c.cuda()
+
         # initial hidden state
         h_n = (init_h, init_c)
 
