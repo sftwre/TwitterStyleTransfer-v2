@@ -33,8 +33,8 @@ class VAE(nn.Module):
         and log variance of latent space.
         """
         self.encoder = nn.LSTM(self.emb_dim, h_dim, num_layers=1, batch_first=True)
-        self.q_mu = nn.Linear(h_dim, z_dim)
-        self.q_logvar = nn.Linear(h_dim, z_dim)
+        self.q_mu = nn.Linear(2*h_dim, z_dim)
+        self.q_logvar = nn.Linear(2*h_dim, z_dim)
 
         """
         decoder is LSTM with embeddings, z, and c as inputs
@@ -85,10 +85,12 @@ class VAE(nn.Module):
 
         # pass latent space through mu and logvar layers
         h = h.reshape(-1, self.emb_dim)
-        mu = self.q_mu(h)
-        logvar = self.q_logvar(h)
+        c = c.reshape(-1, self.emb_dim)
+        h_n = torch.cat([h, c], dim=1)
+        mu = self.q_mu(h_n)
+        logvar = self.q_logvar(h_n)
 
-        return mu, logvar, c
+        return mu, logvar
 
 
     def sample_z(self, mu, logvar):
@@ -120,7 +122,7 @@ class VAE(nn.Module):
         c = c.cuda() if self.gpu else c
         return c
 
-    def forwardDecoder(self, inputs, z, c, init_c):
+    def forwardDecoder(self, inputs, z, c):
         """
         passes embeddings, encoding, and controllable
         params through decoder to generate a new tweet
@@ -142,7 +144,7 @@ class VAE(nn.Module):
 
         # latent and parameter code are initial hidden state of decoder
         init_h = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
-        init_c = torch.cat([init_c, c.unsqueeze(0)], dim=2)
+        init_c = torch.zeros(init_h.shape)
 
         # initial hidden state
         h_n = (init_h, init_c)
@@ -236,7 +238,7 @@ class VAE(nn.Module):
         # dec_targets = torch.cat([inputs[1:], pad_words], dim=0)
 
         # Encoder: sentence -> z
-        mu, logvar, cell_state = self.forwardEncoder(enc_inputs, input_lens)
+        mu, logvar = self.forwardEncoder(enc_inputs, input_lens)
         z = self.sample_z(mu, logvar)
 
         if use_c_prior:
@@ -244,7 +246,7 @@ class VAE(nn.Module):
         else:
             c = self.forwardDiscriminator(inputs.transpose(0, 1))
 
-        recon_loss = self.forwardDecoder(dec_inputs, z, c, cell_state)
+        recon_loss = self.forwardDecoder(dec_inputs, z, c)
 
         # recon_loss = F.cross_entropy(y1.view(-1, self.output_sz), dec_targets.view(-1), size_average=True)
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
