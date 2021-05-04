@@ -139,10 +139,10 @@ def main(args):
 
 def saveModel(model):
 
-    if not os.path.exists('../models/'):
-        os.makedirs('../models/')
+    if not os.path.exists('./models/'):
+        os.makedirs('./models/')
 
-    PATH = '../models/vae.pt'
+    PATH = './models/vae.pt'
 
     torch.save(model.state_dict(), PATH)
 
