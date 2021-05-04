@@ -17,6 +17,7 @@ class TwitterDataset():
         testLabelsPath = './data/tweets.test.labels'
 
         self.batch_size = batch_size
+        self.max_input_len = -1
 
         # load vocab
         self.vocab = self._loadVocab(vocabPath)
@@ -115,37 +116,33 @@ class TwitterDataset():
 
         return account_indexer
 
-    def _batchToIdxs(self, batch:List[List[str]], labels=False) -> torch.Tensor:
+    def _batchToIdxs(self, batch:List[List[str]], max_len) -> torch.Tensor:
         """
-        converts batch of tweets or account handle into corresponding indices in the indexer.
-        If the labels flag is False, then the inputs are padded to the max length
+        Converts batch of tweets  into corresponding indices in the input indexer
+        and pads the inputs to a fixed length.
         :param batch: batch of inputs or account handels
-        :return: tensor of indices, padded for input text
+        :param max_len: max length of tweet in training data, used to create fixed length vector.
+        :return: tensor of padded indices
         """
         inputs = list()
 
-        indexer = self.tweet_indexer if not labels else self.account_indexer
+        for ex in batch:
+            inputs.append(list(map(lambda x: self.tweet_indexer.index_of(x), ex)))
 
-        if not labels:
-            for ex in batch:
-                inputs.append(list(map(lambda x: indexer.index_of(x), ex)))
-
-            max_len = np.asarray(list(map(lambda x: len(x), inputs))).max()
-
-            # pad inputs to max len
-            padded_inputs = np.array([[ex[i] if i < len(ex) else indexer.index_of(PAD_SYMBOL) for i in range(max_len)] for ex in inputs])
-            inputs = padded_inputs
-
-        else:
-            inputs.append(list(map(lambda x: indexer.index_of(x), batch)))
-
-        inputs = torch.tensor(inputs)
-
-        if labels:
-            inputs = inputs.reshape((-1, 1))
+        # pad inputs to max len
+        padded_inputs = np.array([[ex[i] if i < len(ex) else self.tweet_indexer.index_of(PAD_SYMBOL) for i in range(max_len)] for ex in inputs])
+        inputs = torch.tensor(padded_inputs)
 
         return inputs
 
+    def _labelsToIdxs(self, labels) -> torch.Tensor:
+        """
+        Converts account handles to corresponding indices
+        """
+        inputs = list()
+        inputs.append(list(map(lambda x: self.account_indexer.index_of(x), labels)))
+        inputs = torch.tensor(inputs).reshape((-1,1))
+        return inputs
 
     def _dataIterator(self, text, labels):
         """
@@ -176,12 +173,24 @@ class TwitterDataset():
             batch_tweets = [ex.split() for ex in text[start:end]]
             batch_labels = labels[start:end]
 
-            padded_inputs = self._batchToIdxs(batch_tweets)
-            padded_labels = self._batchToIdxs(batch_labels, labels=True)
+            padded_inputs = self._batchToIdxs(batch_tweets, self.max_input_len)
+            idx_labels = self._labelsToIdxs(batch_labels)
 
-            yield padded_inputs, padded_labels
+            # shuffle batch
+            idxs = np.arange(padded_inputs.shape[0])
+            np.random.shuffle(idxs)
+            padded_inputs = padded_inputs[idxs, :]
+            idx_labels = idx_labels[idxs, :]
+
+
+            yield padded_inputs, idx_labels
 
     def resetTrainBatches(self):
+
+        # set max sequence length
+        if self.max_input_len < 0:
+            self.max_input_len = max(list(map(lambda x: len(x.split()), self.X_train)))
+
         self.trainIterator = self._dataIterator(self.X_train, self.y_train)
 
     def idxs2sentence(self, idxs):
