@@ -1,6 +1,7 @@
 import os
 import torch
 import argparse
+import numpy as np
 from trainer.vae import VAE
 import torch.optim as optim
 import torch.nn.functional as F
@@ -23,21 +24,21 @@ def main(args):
     epochs = args.epochs
     batch_size = args.batch_size
     gpu = args.gpu
-    z_dim = 64
-    h_dim = 64
+    z_dim = args.z_dim
+    h_dim = args.h_dim
     report_interval = 100
 
-    dataset = TwitterDataset(gpu=gpu)
+    dataset = TwitterDataset(batch_size=batch_size)
 
     # controllable parameter for each account
     c_dim = dataset.n_accounts
 
-    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=gpu)
+    model = VAE(dataset.tweet_indexer, h_dim, z_dim, c_dim, gpu=gpu)
 
-    device = 'cpu' if not gpu else 'cuda:0'
+    device = 'cpu' if not gpu else 'cuda'
 
     # load pre-trained generator
-    model.load_state_dict(torch.load('models/vae.pt', map_location=torch.device(device)))
+    model.load_state_dict(torch.load('./models/vae.pt', map_location=torch.device(device)))
 
     optim_G = optim.Adam(model.decoder_params, lr=lr)
     optim_D = optim.Adam(model.discriminator_params, lr=lr)
@@ -52,16 +53,14 @@ def main(args):
         dataset.resetTrainBatches()
 
         # generate samples and classify sentences
-        for inputs, labels in dataset.trainIterator:
+        for padded_inputs, idx_labels in dataset.trainIterator:
 
             """update params of discriminator, sleep phase"""
-            b_size = inputs.size(1)
-
-            x_gen, c_gen = model.generate_sentences(b_size)
+            x_gen, c_gen = model.generate_sentences(batch_size)
             c_hat = torch.argmax(c_gen, dim=1)
 
             # classify twitter handle of sentences
-            y_hat_real = model.forwardDiscriminator(inputs.transpose(0, 1))
+            y_hat_real = model.forwardDiscriminator(padded_inputs)
             y_hat_gen = model.forwardDiscriminator(x_gen)
 
             # entropy used to obtain high confidence in predictions
@@ -69,7 +68,8 @@ def main(args):
             entropy = -entropy
 
             # supervised loss for semantic meaning
-            loss_s = F.cross_entropy(y_hat_real, labels)
+            loss_s = F.cross_entropy(y_hat_real, idx_labels.squeeze(1))
+
             # unsupervised loss
             loss_u = F.cross_entropy(y_hat_gen, c_hat)
 
@@ -84,7 +84,8 @@ def main(args):
             """ update params of generator, sleep phase """
             model.train()
 
-            recon_loss, kl_loss = model.forward(inputs, use_c_prior=False)
+            input_lens = torch.tensor(np.count_nonzero(padded_inputs, axis=1))
+            recon_loss, kl_loss = model.forward(padded_inputs, input_lens, use_c_prior=False)
 
             x_gen_attr, target_z, target_c = model.generate_soft_embed(batch_size)
 
@@ -92,7 +93,8 @@ def main(args):
             Feed soft generated sentence to discriminator
             to measure fitness to the target attribute.
             """
-            y_z, *_ = model.forwardEncoderEmb(x_gen_attr.transpose(0, 1))
+            x_gen_len = torch.tensor([x_gen_attr.shape[1]]*batch_size)
+            y_z, *_ = model.forwardEncoderEmb(x_gen_attr, x_gen_len)
             y_c = model.forwardDiscEmbed(x_gen_attr)
 
             loss_vae = recon_loss + kl_weight_max * kl_loss
@@ -108,7 +110,7 @@ def main(args):
             optim_G.zero_grad()
 
             """ update params of encoder, wake phase """
-            recon_loss, kl_loss = model.forward(inputs, use_c_prior=False)
+            recon_loss, kl_loss = model.forward(padded_inputs, input_lens, use_c_prior=False)
 
             loss_e = recon_loss + kl_weight_max * kl_loss
 
@@ -143,10 +145,10 @@ def main(args):
 
 def saveModel(model):
 
-    if not os.path.exists('../models/'):
-        os.makedirs('models/')
+    if not os.path.exists('./models/'):
+        os.makedirs('./models/')
 
-    PATH = '../models/tweet_gen.pt'
+    PATH = './models/tweet_gen.pt'
 
     torch.save(model.state_dict(), PATH)
 
@@ -159,6 +161,8 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_c', default=0.1, type=float)
     parser.add_argument('--lambda_z', default=0.1, type=float)
     parser.add_argument('--lambda_u', default=0.1, type=float)
+    parser.add_argument('--h_dim', default=64, type=int, help='Dimensionality of hidden state')
+    parser.add_argument('--z_dim', default=64, type=int, help='Dimensionality of latent space')
     parser.add_argument('--gpu', default=False, type=bool, help='Flag to run model on gpu')
     parser.add_argument('--epochs', default=100, type=int, help='Training epochs')
 

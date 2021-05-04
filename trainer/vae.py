@@ -87,8 +87,12 @@ class VAE(nn.Module):
         :return:
         """
         inputs = self.embedder(inputs)
+        return self.forwardEncoderEmb(inputs, input_lens)
 
-        packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens.cpu(), batch_first=True, enforce_sorted=False)
+    def forwardEncoderEmb(self, inputs, input_lens):
+
+        packed_embeddings = nn.utils.rnn.pack_padded_sequence(inputs, input_lens.cpu(), batch_first=True,
+                                                              enforce_sorted=False)
         _, (h, c) = self.encoder(packed_embeddings)
 
         # reduce hidden state and cell state
@@ -263,7 +267,7 @@ class VAE(nn.Module):
         if use_c_prior:
             c = self.sample_c_prior(size)
         else:
-            c = self.forwardDiscriminator(inputs.transpose(0, 1))
+            c = self.forwardDiscriminator(inputs)
 
         recon_loss = self.forwardDecoder(dec_inputs, z, c)
 
@@ -329,7 +333,7 @@ class VAE(nn.Module):
 
                 # TODO re-incorperate temperature annealing
                 # y = F.softmax(y/temp, dim=0)
-                log_probs = F.log_softmax(logits)
+                log_probs = F.log_softmax(logits, dim=0)
                 y_hat = torch.argmax(log_probs)
 
                 # idx = torch.multinomial(y_hat, 1)
@@ -382,9 +386,9 @@ class VAE(nn.Module):
         Soft embeddings are calculated as weighted average of word embeddings
         according to p(x|z,c).
 
-        Used to the generator during the sleep phase
+        Used by the generator during the sleep phase
         """
-        # self.eval()
+        self.eval()
 
         z, c = z.view(1, 1, -1), c.view(1, 1, -1)
 
@@ -392,40 +396,41 @@ class VAE(nn.Module):
         word = word.cuda() if self.gpu else word
         # word = word # '<start>'
         emb = self.embedder(word).view(1, 1, -1)
-        emb = torch.cat([emb, z, c], 2)
+        emb = torch.cat([emb, z, c], dim=2)
 
         h = torch.cat([z, c], dim=2)
         zeros = torch.zeros((1, 1, self.z_dim))
 
         c_0 = torch.cat([zeros, c], dim=2)
 
-        state = (h, c_0)
+        h_n = (h, c_0)
 
         outputs = [self.embedder(word).view(1, -1)]
 
-        for i in range(self.max_tweet_len):
-            output, h = self.decoder(emb, state)
-            o = self.decoder_fc(output).view(-1)
+        with torch.no_grad():
+            for i in range(self.max_tweet_len):
+                output, h_n = self.decoder(emb, h_n)
+                o = self.decoder_fc(output).view(-1)
 
-            # Sample softmax with temperature
-            y = F.softmax(o / temp, dim=0)
+                # Sample softmax with temperature
+                y = F.softmax(o / temp, dim=0)
 
-            # Take expectation of embedding given output prob -> soft embedding
-            # <y, w> = 1 x n_vocab * n_vocab x emb_dim
-            emb = y.unsqueeze(0) @ self.embedder.weight
-            emb = emb.view(1, 1, -1)
+                # Take expectation of embedding given output prob -> soft embedding
+                # <y, w> = 1 x n_vocab * n_vocab x emb_dim
+                emb = y.unsqueeze(0) @ self.embedder[0].weight
+                emb = emb.view(1, 1, -1)
 
-            # Save resulting soft embedding
-            outputs.append(emb.view(1, -1))
+                # Save resulting soft embedding
+                outputs.append(emb.view(1, -1))
 
-            # Append with z and c for the next input
-            emb = torch.cat([emb, z, c], 2)
+                # Append with z and c for the next input
+                emb = torch.cat([emb, z, c], dim=2)
 
-        # 1 x 16 x emb_dim
-        outputs = torch.cat(outputs, dim=0).unsqueeze(0)
+            # 1 x 16 x emb_dim
+            outputs = torch.cat(outputs, dim=0).unsqueeze(0)
 
         # Back to default state: train
-        # self.train()
+        self.train()
 
         return outputs
 
