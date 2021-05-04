@@ -63,7 +63,7 @@ def main(args):
         interval = 0
         dataset.resetTrainBatches()
 
-        for padded_inputs, padded_labels in dataset.trainIterator:
+        for padded_inputs, _ in dataset.trainIterator:
 
             # zero out previous gradients
             optimizer.zero_grad()
