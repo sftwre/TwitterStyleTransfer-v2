@@ -345,7 +345,7 @@ class VAE(nn.Module):
                     break
 
                 # next input is predicted token
-                y_step = y_hat
+                y_step = y_hat.cuda() if self.gpu else y_hat
 
                 outputs.append(y_hat.item())
 
@@ -400,6 +400,9 @@ class VAE(nn.Module):
 
         h = torch.cat([z, c], dim=2)
         zeros = torch.zeros((1, 1, self.z_dim))
+
+        if self.gpu:
+            zeros = zeros.cuda()
 
         c_0 = torch.cat([zeros, c], dim=2)
 
