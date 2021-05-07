@@ -1,4 +1,5 @@
 import os
+import yaml
 import torch
 import torch.nn as nn
 import argparse
@@ -27,10 +28,21 @@ def main(args):
     if gpu and device_ids is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
-    if log_runs:
-        writer = SummaryWriter()
+    # load config vars
+    conf = 'config/config.yaml'
+    with open(conf) as file:
+        config = yaml.safe_load(file.read())
 
-    dataset = TwitterDataset(batch_size=batch_sz)
+    # load config vars
+    base_dir = config.get('PROJECT_DIR')
+    vocab_path = config.get('VOCAB_PATH')
+    train_path = config.get('TRAIN_PATH')
+    labels_path = config.get('LABELS_PATH')
+
+    if log_runs:
+        writer = SummaryWriter(os.path.join(base_dir, 'runs'))
+
+    dataset = TwitterDataset(batch_size=batch_sz, train_path=train_path, labels_path=labels_path, vocab_path=vocab_path)
 
     # controllable parameter for each account
     c_dim = dataset.n_accounts
@@ -130,19 +142,22 @@ def main(args):
     if isinstance(model, nn.DataParallel):
         model = model.module
 
-    saveModel(model)
+    saveModel(model, base_dir)
 
     if log_runs:
         writer.flush()
         writer.close()
 
 
-def saveModel(model):
+def saveModel(model, base_dir):
 
-    if not os.path.exists('./models/'):
-        os.makedirs('./models/')
+    vae_path = os.path.join(base_dir, 'models')
 
-    PATH = './models/vae.pt'
+    # create models directory if it does not exists
+    if not os.path.exists(vae_path):
+        os.makedirs(vae_path)
+
+    PATH = os.path.join(vae_path, 'vae.pt')
 
     torch.save(model.state_dict(), PATH)
 

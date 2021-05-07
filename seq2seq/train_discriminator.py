@@ -11,9 +11,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 def main(args):
 
-    # tensorboard writer
-    writer = SummaryWriter()
-
     # hyperparams
     beta = args.beta
     lambda_c = args.lambda_c
@@ -33,15 +30,21 @@ def main(args):
     if gpu and device_ids is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
-    conf = 'resources/config.yaml'
+    conf = 'config/config.yaml'
     with open(conf) as file:
         config = yaml.safe_load(file.read())
 
+    # load config vars
+    base_dir = config.get('PROJECT_DIR')
     vocab_path = config.get('VOCAB_PATH')
     train_path = config.get('TRAIN_PATH')
-    valid_path = config.get('VALID_PATH')
+    labels_path = config.get('LABELS_PATH')
+    vae_path = config.get('VAE_PATH')
 
-    dataset = TwitterDataset(vocab_path=vocab_path, train_path=train_path, valid_path=valid_path, batch_size=batch_size)
+    # tensorboard writer
+    writer = SummaryWriter(log_dir=os.path.join(base_dir, 'runs'))
+
+    dataset = TwitterDataset(vocab_path=vocab_path, train_path=train_path, labels_path=labels_path, batch_size=batch_size)
 
     # controllable parameter for each account
     c_dim = dataset.n_accounts
@@ -51,7 +54,7 @@ def main(args):
     device = 'cpu' if (not gpu or not torch.cuda.is_available()) else 'cuda'
 
     # load pre-trained generator
-    model.load_state_dict(torch.load('../models/vae.pt', map_location=torch.device(device)))
+    model.load_state_dict(torch.load(vae_path, map_location=torch.device(device)))
 
     model.to(device)
 
@@ -161,16 +164,18 @@ def main(args):
             interval += 1
 
     # save model parameters
-    saveModel(model)
+    saveModel(model, base_dir)
     writer.flush()
     writer.close()
 
-def saveModel(model):
+def saveModel(model, base_dir):
 
-    if not os.path.exists('./models/'):
-        os.makedirs('./models/')
+    models_dir = os.path.join(base_dir, 'models')
 
-    PATH = './models/tweet_gen.pt'
+    if not os.path.exists(models_dir):
+        os.makedirs(models_dir)
+
+    PATH = os.path.join(models_dir, 'tweet_gen.pt')
 
     torch.save(model.state_dict(), PATH)
 
