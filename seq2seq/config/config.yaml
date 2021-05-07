@@ -1,3 +1,3 @@
-VOCAB_PATH:
-TRAIN_PATH:
-VALID_PATH:
+VOCAB_PATH: "/Users/ibuitrago/PycharmProjects/TwitterStyleTransfer-v2/data/vocab.txt"
+TRAIN_PATH: "/Users/ibuitrago/PycharmProjects/TwitterStyleTransfer-v2/data/tweets.train.txt"
+VALID_PATH: "/Users/ibuitrago/PycharmProjects/TwitterStyleTransfer-v2/data/tweets.train.labels"
