@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import List
 from collections import Counter
-from utils import *
+from seq2seq.utils import *
 
 class TwitterDataset():
 

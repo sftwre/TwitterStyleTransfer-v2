@@ -3,7 +3,7 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 from itertools import chain
-from utils import *
+from seq2seq.utils import *
 
 class VAE(nn.Module):
 
@@ -224,9 +224,27 @@ class VAE(nn.Module):
         x2 = F.relu(self.conv2(inputs)).squeeze()
         x3 = F.relu(self.conv3(inputs)).squeeze()
 
+        if len(x1.shape) < 3:
+            x1 = x1.unsqueeze(0)
+
+        if len(x2.shape) < 3:
+            x2 = x2.unsqueeze(0)
+
+        if len(x3.shape) < 3:
+            x3 = x3.unsqueeze(0)
+
         x1 = F.max_pool1d(x1, x1.size(2)).squeeze()
         x2 = F.max_pool1d(x2, x2.size(2)).squeeze()
         x3 = F.max_pool1d(x3, x3.size(2)).squeeze()
+
+        if len(x1.shape) < 2:
+            x1 = x1.unsqueeze(0)
+
+        if len(x2.shape) < 2:
+            x2 = x2.unsqueeze(0)
+
+        if len(x3.shape) < 2:
+            x3 = x3.unsqueeze(0)
 
         x = torch.cat([x1, x2, x3], dim=1)
 
