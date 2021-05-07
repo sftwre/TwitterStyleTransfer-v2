@@ -21,7 +21,7 @@ COPY data/tweets.test.txt ./data/tweets.test.txt
 COPY data/tweets.test.labels ./data/tweets.test.labels
 COPY data/vocab.txt ./data/vocab.txt
 
-# copy trainer package
-COPY trainer/* ./trainer/
+# copy seq2seq package
+COPY seq2seq/* ./trainer/
 
 

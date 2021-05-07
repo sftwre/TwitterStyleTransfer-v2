@@ -7,23 +7,16 @@ from utils import *
 
 class TwitterDataset():
 
-    def __init__(self, batch_size):
-
-        vocabPath = './data/vocab.txt'
-        trainPath = './data/tweets.train.txt'
-        trainLabelsPath = './data/tweets.train.labels'
-
-        testPath = './data/tweets.test.txt'
-        testLabelsPath = './data/tweets.test.labels'
+    def __init__(self, batch_size, vocab_path, train_path, labels_path):
 
         self.batch_size = batch_size
         self.max_input_len = -1
 
         # load vocab
-        self.vocab = self._loadVocab(vocabPath)
+        self.vocab = self._loadVocab(vocab_path)
 
         # load training data
-        self.X_train, self.y_train = self._loadData(trainPath, trainLabelsPath)
+        self.X_train, self.y_train = self._loadData(train_path, labels_path)
 
         self.tweet_indexer = self._buildTweetVocab()
         self.account_indexer = self._buildAccountVocab(self.y_train)

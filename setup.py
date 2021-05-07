@@ -7,7 +7,7 @@ with open('./requirements.txt') as f:
 
 
 setup(
-    name='trainer',
+    name='seq2seq',
     version='1.0',
     install_requires=REQUIRED_PACKAGES,
     packages=find_packages(),

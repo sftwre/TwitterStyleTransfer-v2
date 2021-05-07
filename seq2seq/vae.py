@@ -198,14 +198,6 @@ class VAE(nn.Module):
             # teacher forcing, next input is current target
             y_step = target.reshape(batch_sz, 1)
 
-            # target_len, bsize, _ = outputs.size()
-            #
-            # outputs = outputs.reshape(target_len*bsize, -1)
-
-        # logits for generated words
-        # y = self.decoder_fc(outputs)
-        # y = y.view(target_len, bsize, self.output_sz)
-
         # compute mean loss across time steps
         recon_loss /= target_len
 
@@ -275,6 +267,57 @@ class VAE(nn.Module):
         kl_loss = torch.mean(0.5 * torch.sum(torch.exp(logvar) + mu**2 - 1 - logvar, 1))
 
         return recon_loss, kl_loss
+
+    def decode(self, inputs:torch.Tensor, c=None):
+
+        self.eval()
+
+        with torch.no_grad():
+
+            input_lens = torch.tensor(np.count_nonzero(inputs, axis=1))
+
+            # Encoder: sentence -> z
+            mu, logvar = self.forwardEncoder(inputs, input_lens)
+            z = self.sample_z(mu, logvar)
+
+            if c is None:
+                c = self.forwardDiscriminator(inputs)
+
+            # latent and parameter code are initial hidden state of decoder
+            init_h = torch.cat([z.unsqueeze(0), c.unsqueeze(0)], dim=2)
+            init_c = torch.zeros(init_h.shape)
+
+            # initial hidden state
+            h_n = (init_h, init_c)
+
+            # initial input token
+            y_step = torch.tensor([[self.indexer.index_of(SOS_SYMBOL)] * 1]).reshape(1, 1)
+
+            tweet = list()
+
+            for t in range(self.max_tweet_len):
+
+                word_embeddings = self.embedder(y_step).view(1, 1, -1)
+
+                # concat new latent and parameter code
+                z_c = h_n[0].permute((1, 0, 2))
+                dec_inputs = torch.cat([word_embeddings, z_c], dim=2)
+
+                outputs, h_n = self.decoder(dec_inputs, h_n)
+
+                logits = self.decoder_fc(outputs).reshape(-1, self.output_sz)
+
+                y_hat = torch.argmax(logits, dim=1)
+
+                if y_hat == self.eos_idx:
+                    break
+
+                # next input is predicted word
+                y_step = y_hat
+
+                tweet.append(y_hat.item())
+
+            return tweet
 
     def generate_sentences(self, batch_size):
         """
