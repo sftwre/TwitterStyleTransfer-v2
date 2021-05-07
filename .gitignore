@@ -14,4 +14,6 @@ webapp/node_modules
 
 # pycache
 __pycache__/*
->>>>>>> d779da590d318a6f2fb2c1c3feb55e54f4e7fb9b
+
+# config
+seq2seq/config/config.yaml
