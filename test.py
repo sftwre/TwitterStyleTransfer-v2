@@ -1,9 +1,9 @@
+import yaml
 import torch
-import numpy as np
-from trainer.vae import VAE
-from trainer.dataset import TwitterDataset
 import argparse
-
+import numpy as np
+from seq2seq.vae import VAE
+from seq2seq.dataset import TwitterDataset
 
 class Beam(object):
     """
@@ -112,34 +112,41 @@ def beam_search(soft_words, k):
 
 def main(args):
 
-    h_dim = 64
-    z_dim = 64
-    c_dim = 4
-
+    k = args.k
+    h_dim = args.h_dim
+    z_dim = args.z_dim
+    c_dim = args.c_dim
+    input_text = args.input
     account = args.account
     n_tweets = args.n_tweets
     beam = args.beam_search
-    k = args.k
+
+    conf = 'config/config.yaml'
+    with open(conf) as file:
+        config = yaml.safe_load(file.read())
+
+    # load config vars
+    vocab_path = config.get('VOCAB_PATH')
+    train_path = config.get('TRAIN_PATH')
+    labels_path = config.get('LABELS_PATH')
+    model_path = config.get('TWEET_GEN_PATH')
 
     accounts = ['elon', 'dril', 'donald', 'dalai']
 
+    dataset = TwitterDataset(batch_size=1, vocab_path=vocab_path, train_path=train_path, labels_path=labels_path)
+
+    model = VAE(dataset.tweet_indexer, h_dim, z_dim, c_dim, gpu=args.gpu)
+
     device = 'cuda:0' if args.gpu else 'cpu'
-
-    model_path = './models/tweet_gen.pt'
-
-    dataset = TwitterDataset(gpu=args.gpu)
-
-    model = VAE(dataset.vocab_size, h_dim, z_dim, c_dim, gpu=args.gpu)
-
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 
     # load model on correct device
     model.to(device)
 
-    dalai = np.array([1, 0, 0, 0]).reshape(1, -1)
-    donald = np.array([0, 1, 0, 0]).reshape(1, -1)
-    elon = np.array([0, 0, 1, 0]).reshape(1, -1)
-    dril = np.array([0, 0, 0, 1]).reshape(1, -1)
+    dalai = np.array([0, 0, 0, 0, 1]).reshape(1, -1)
+    donald = np.array([0, 0, 0, 1, 0]).reshape(1, -1)
+    elon = np.array([0, 0, 1, 0, 0]).reshape(1, -1)
+    dril = np.array([0, 1, 0, 0, 0]).reshape(1, -1)
 
     # get code for account
     if account not in accounts:
@@ -182,5 +189,9 @@ if __name__ == '__main__':
     parser.add_argument('--account', required=True, type=str, help='account to generate tweets for')
     parser.add_argument('--beam_search', default=False, type=bool, help='whether to perform beam search or not')
     parser.add_argument('--k', required=False, type=int, help='size of beam')
+    parser.add_argument('--input', required=False, type=str, help='Input text to mimic style')
+    parser.add_argument('--h_dim', default=1000, type=int, help='Dimensionality of hidden state')
+    parser.add_argument('--z_dim', default=300, type=int, help='Dimensionality of latent space')
+
     args = parser.parse_args()
     main(args)
