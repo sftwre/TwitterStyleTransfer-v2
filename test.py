@@ -4,6 +4,8 @@ import argparse
 import numpy as np
 from seq2seq.vae import VAE
 from seq2seq.dataset import TwitterDataset
+import math
+from pytorch_pretrained_bert import OpenAIGPTTokenizer, OpenAIGPTLMHeadModel
 
 class Beam(object):
     """
@@ -112,16 +114,18 @@ def beam_search(soft_words, k):
 
 def main(args):
 
+    # number of twitter accounts
+    c_dim = 5
+
     k = args.k
     h_dim = args.h_dim
     z_dim = args.z_dim
-    c_dim = args.c_dim
     input_text = args.input
     account = args.account
     n_tweets = args.n_tweets
     beam = args.beam_search
 
-    conf = 'config/config.yaml'
+    conf = 'seq2seq/config/config.yaml'
     with open(conf) as file:
         config = yaml.safe_load(file.read())
 
@@ -162,24 +166,59 @@ def main(args):
     else:
         code = elon
 
+
     # generate tweets for account
     c = torch.FloatTensor(code).to(device)
     _, c_idx = torch.max(c, dim=1)
 
     print(f'Twitter account: @{dataset.idx2label(int(c_idx))}')
 
-    for _ in range(n_tweets):
-        # Samples latent and conditional codes randomly from prior
-        z = model.sample_z_prior(1)
+    # Load pre-trained model (weights)
+    pmodel = OpenAIGPTLMHeadModel.from_pretrained('openai-gpt')
+    pmodel.eval()
+    # Load pre-trained model tokenizer (vocabulary)
+    tokenizer = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
 
-        sample_idxs = model.sample_sentence(z, c, beam=beam, temp=0.1)
+    def score(sentence):
+        tokenize_input = tokenizer.tokenize(sentence)
+        tensor_input = torch.tensor([tokenizer.convert_tokens_to_ids(tokenize_input)])
+        loss = pmodel(tensor_input, lm_labels=tensor_input)
+        return math.exp(loss)
 
-        # use beam search to find k most likely sequences
-        if beam:
-            seqs = beam_search(sample_idxs, k)
-            print(dataset.idxs2sentence(seqs[0][0]))
-        else:
-            print(dataset.idxs2sentence(sample_idxs))
+    total_ratio = 0.0
+    total_perp = 0.0
+
+    if input_text is not None:
+
+        # perform style transfer on designated account
+        input_text = [input_text.strip().split()]
+        input_tensor = dataset._batchToIdxs(input_text, len(input_text[0]))
+
+        idxs = model.decode(input_tensor, c)
+        tweet = dataset.idxs2sentence(idxs)
+        print(tweet)
+
+    else:
+        # only account handle provided, generate tweets and compute metrics
+        for _ in range(n_tweets):
+            # Samples latent and conditional codes randomly from prior
+            z = model.sample_z_prior(1)
+
+            sample_idxs = model.sample_sentence(z)
+
+            # use beam search to find k most likely sequences
+            if beam:
+                seqs = beam_search(sample_idxs, k)
+                print(dataset.idxs2sentence(seqs[0][0]))
+            else:
+                sent = dataset.idxs2sentence(sample_idxs)
+                print(sent)
+
+            total_perp += score(sent)
+            total_ratio += len(set(sent.split())) / len(sent.split())
+
+        print("Perplexity: " + str(total_perp / n_tweets))
+        print("Type token Ratio: " + str(total_ratio / n_tweets))
 
 if __name__ == '__main__':
 
