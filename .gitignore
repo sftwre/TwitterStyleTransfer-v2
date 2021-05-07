@@ -16,4 +16,4 @@ webapp/node_modules
 __pycache__/*
 
 # config
-seq2seq/config/config.yaml
+*.yaml
