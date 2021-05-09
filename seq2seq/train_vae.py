@@ -29,7 +29,7 @@ def main(args):
         os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
     # load config vars
-    conf = 'config/config.yaml'
+    conf = 'config.yaml'
     with open(conf) as file:
         config = yaml.safe_load(file.read())
 

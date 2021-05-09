@@ -30,7 +30,7 @@ def main(args):
     if gpu and device_ids is not None:
         os.environ['CUDA_VISIBLE_DEVICES'] = device_ids
 
-    conf = 'config/config.yaml'
+    conf = 'config.yaml'
     with open(conf) as file:
         config = yaml.safe_load(file.read())
 
