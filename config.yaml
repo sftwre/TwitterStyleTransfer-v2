@@ -1,4 +1,5 @@
 PROJECT_DIR: "/Users/isaacbuitrago/PycharmProjects/TwitterStyleTransfer"
+DATA_PATH: "/Users/isaacbuitrago/PycharmProjects/TwitterStyleTransfer/data"
 VOCAB_PATH: "/Users/isaacbuitrago/PycharmProjects/TwitterStyleTransfer/data/vocab.txt"
 TRAIN_PATH: "/Users/isaacbuitrago/PycharmProjects/TwitterStyleTransfer/data/tweets.train.txt"
 LABELS_PATH: "/Users/isaacbuitrago/PycharmProjects/TwitterStyleTransfer/data/tweets.train.labels"
