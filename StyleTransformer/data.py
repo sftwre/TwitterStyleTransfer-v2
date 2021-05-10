@@ -25,14 +25,14 @@ class DatasetIterator(object):
             yield batch_elon.text, batch_dalai.text, batch_donald.text, batch_dril.text
 
 
-def load_dataset(config, args, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
+def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
                  train_dril='dril.txt', train_donald='realDonaldTrump.txt'):
 
-    root = os.path.join(config.get('DATA_PATH'), 'individual/')
+    root = config.data_path
     TEXT = data.Field(batch_first=True, eos_token='<eos>')
 
     dataset_fn = lambda name: data.TabularDataset(
-        path=root + name,
+        path=os.path.join(root, name),
         format='tsv',
         fields=[('text', TEXT)]
     )
@@ -42,12 +42,13 @@ def load_dataset(config, args, train_elon='elonmusk.txt', train_dalai='DalaiLama
                                                                              train_donald, train_dril])
 
     TEXT.build_vocab(train_elon_set, train_dalai_set,
-                     train_donald_set, train_dril_set, min_freq=args.min_freq)
+                     train_donald_set, train_dril_set,
+                     min_freq=config.min_freq)
 
-    if args.load_pretrained_embed:
+    if config.load_pretrained_embed:
         start = time.time()
 
-        vectors = torchtext.vocab.GloVe('6B', dim=args.embed_size, cache=args.pretrained_embed_path)
+        vectors = torchtext.vocab.GloVe('6B', dim=config.embed_size, cache=config.pretrained_embed_path)
         TEXT.vocab.set_vectors(vectors.stoi, vectors.vectors, vectors.dim)
         print('vectors', TEXT.vocab.vectors.size())
 
@@ -57,12 +58,12 @@ def load_dataset(config, args, train_elon='elonmusk.txt', train_dalai='DalaiLama
 
     dataiter_fn = lambda dataset, train: data.BucketIterator(
         dataset=dataset,
-        batch_size=args.batch_size,
+        batch_size=config.batch_size,
         shuffle=train,
         repeat=train,
         sort_key=lambda x: len(x.text),
         sort_within_batch=False,
-        device=args.device
+        device=config.device
     )
 
     train_elon_iter, train_dalai_iter, train_donald_iter, train_dril_iter = map(lambda x: dataiter_fn(x, True),
@@ -74,7 +75,7 @@ def load_dataset(config, args, train_elon='elonmusk.txt', train_dalai='DalaiLama
     return train_iters, vocab
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # train_iter, _, _, vocab = load_dataset('../data/yelp/')
     # print(len(vocab))
     # for batch in train_iter:
