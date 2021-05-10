@@ -9,7 +9,7 @@ import numpy as np
 from torch import nn, optim
 from torch.nn.utils import clip_grad_norm_
 
-# from evaluator import Evaluator
+from evaluator import Evaluator
 from utils import tensor2text, calc_ppl, idx2onehot, add_noise, word_drop
 
 
