@@ -35,10 +35,10 @@ def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt')
 
     train_elon_set, train_dalai_set = map(dataset_fn, [train_elon, train_dalai])
 
-    max_len = max(max([len(ex.text) for ex in train_dalai_set.examples]),
-                  max([len(ex.text) for ex in train_elon_set.examples]))
-
-    config.max_length = max_len
+    # max_len = max(max([len(ex.text) for ex in train_dalai_set.examples]),
+    #               max([len(ex.text) for ex in train_elon_set.examples]))
+    #
+    # config.max_length = max_len
 
     TEXT.build_vocab(train_elon_set, train_dalai_set, min_freq=config.min_freq)
 

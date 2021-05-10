@@ -21,10 +21,10 @@ class Config():
     pretrained_embed_path = os.path.join(config.get('PROJECT_DIR'), 'embedding/')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     discriminator_method = 'Multi'  # 'Multi' or 'Cond'
-    load_pretrained_embed = False
+    load_pretrained_embed = True
     min_freq = 3
-    max_length = 16
-    embed_size = 256
+    max_length = 58
+    embed_size = 100
     d_model = 256
     h = 4
     num_styles = 4
