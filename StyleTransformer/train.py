@@ -21,25 +21,25 @@ def get_lengths(tokens, eos_idx):
 
 
 def batch_preprocess(batch, pad_idx, eos_idx, reverse=False):
-    batch_pos, batch_neg = batch
-    diff = batch_pos.size(1) - batch_neg.size(1)
+    batch_elon, batch_dalai = batch
+    diff = batch_elon.size(1) - batch_dalai.size(1)
     if diff < 0:
-        pad = torch.full_like(batch_neg[:, :-diff], pad_idx)
-        batch_pos = torch.cat((batch_pos, pad), 1)
+        pad = torch.full_like(batch_dalai[:, :-diff], pad_idx)
+        batch_elon = torch.cat((batch_elon, pad), 1)
     elif diff > 0:
-        pad = torch.full_like(batch_pos[:, :diff], pad_idx)
-        batch_neg = torch.cat((batch_neg, pad), 1)
+        pad = torch.full_like(batch_elon[:, :diff], pad_idx)
+        batch_dalai = torch.cat((batch_dalai, pad), 1)
 
-    pos_styles = torch.ones_like(batch_pos[:, 0])
-    neg_styles = torch.zeros_like(batch_neg[:, 0])
+    elon_styles = torch.ones_like(batch_elon[:, 0])
+    dalai_styles = torch.zeros_like(batch_dalai[:, 0])
 
     if reverse:
-        batch_pos, batch_neg = batch_neg, batch_pos
-        pos_styles, neg_styles = neg_styles, pos_styles
+        batch_elon, batch_dalai = batch_dalai, batch_elon
+        elon_styles, dalai_styles = dalai_styles, elon_styles
 
-    tokens = torch.cat((batch_pos, batch_neg), 0)
+    tokens = torch.cat((batch_elon, batch_dalai), 0)
     lengths = get_lengths(tokens, eos_idx)
-    styles = torch.cat((pos_styles, neg_styles), 0)
+    styles = torch.cat((elon_styles, dalai_styles), 0)
 
     return tokens, lengths, styles
 
@@ -237,7 +237,7 @@ def train(config, vocab, model_F, model_D, train_iters):
     model_F.train()
     model_D.train()
 
-    config.save_folder = config.save_path + '/' + str(time.strftime('%b%d%H%M%S', time.localtime()))
+    config.save_folder = os.path.join(config.save_path, str(time.strftime('%b%d%H%M%S', time.localtime())))
     os.makedirs(config.save_folder)
     os.makedirs(config.save_folder + '/ckpts')
     print('Save Path:', config.save_folder)
@@ -320,7 +320,7 @@ def train(config, vocab, model_F, model_D, train_iters):
             # save model
             torch.save(model_F.state_dict(), config.save_folder + '/ckpts/' + str(global_step) + '_F.pth')
             torch.save(model_D.state_dict(), config.save_folder + '/ckpts/' + str(global_step) + '_D.pth')
-            auto_eval(config, vocab, model_F, test_iters, global_step, temperature)
+            # auto_eval(config, vocab, model_F, test_iters, global_step, temperature)
             # for path, sub_writer in writer.all_writers.items():
             #    sub_writer.flush()
 

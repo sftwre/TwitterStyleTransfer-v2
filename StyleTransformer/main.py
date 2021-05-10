@@ -5,18 +5,19 @@ import os
 import torch
 import yaml
 from data import load_dataset
-from .transformer import StyleTransformer, Discriminator
-from .train import train, auto_eval
+from transformer import StyleTransformer, Discriminator
+from train import train, auto_eval
 
 class Config():
-    conf = './config.yaml'
+
+    conf = '../config.yaml'
 
     with open(conf, 'r') as file:
         config = yaml.safe_load(file.read())
 
     data_path = os.path.join(config.get('DATA_PATH'), 'individual')
     log_dir = 'runs/exp'
-    save_path = './save'
+    save_path = os.path.join(config.get('PROJECT_DIR'), 'save')
     pretrained_embed_path = os.path.join(config.get('PROJECT_DIR'), 'embedding/')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     discriminator_method = 'Multi'  # 'Multi' or 'Cond'

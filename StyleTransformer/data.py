@@ -10,23 +10,19 @@ from torchtext import data
 
 
 class DatasetIterator(object):
-    def __init__(self, elon_iter, dalai_iter, donald_iter, dril_iter):
+    def __init__(self, elon_iter, dalai_iter):
         self.elon_iter = elon_iter
         self.dalai_iter = dalai_iter
-        self.donald_iter = donald_iter
-        self.dril_iter = dril_iter
 
     def __iter__(self):
 
-        for batch_elon, batch_dalai, batch_donald, batch_dril in zip(iter(self.elon_iter), iter(self.dalai_iter),
-                                                                     iter(self.donald_iter), iter(self.dril_iter)):
+        for batch_elon, batch_dalai in zip(iter(self.elon_iter), iter(self.dalai_iter)):
 
-            # if batch_elon.text.size(0) == batch_dalai.text.size(0):
-            yield batch_elon.text, batch_dalai.text, batch_donald.text, batch_dril.text
+            if batch_elon.text.size(0) == batch_dalai.text.size(0):
+                yield batch_elon.text, batch_dalai.text
 
 
-def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
-                 train_dril='dril.txt', train_donald='realDonaldTrump.txt'):
+def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt'):
 
     root = config.data_path
     TEXT = data.Field(batch_first=True, eos_token='<eos>')
@@ -37,13 +33,14 @@ def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
         fields=[('text', TEXT)]
     )
 
-    train_elon_set, train_dalai_set, train_donald_set, train_dril_set = map(dataset_fn,
-                                                                            [train_elon, train_dalai,
-                                                                             train_donald, train_dril])
+    train_elon_set, train_dalai_set = map(dataset_fn, [train_elon, train_dalai])
 
-    TEXT.build_vocab(train_elon_set, train_dalai_set,
-                     train_donald_set, train_dril_set,
-                     min_freq=config.min_freq)
+    max_len = max(max([len(ex.text) for ex in train_dalai_set.examples]),
+                  max([len(ex.text) for ex in train_elon_set.examples]))
+
+    config.max_length = max_len
+
+    TEXT.build_vocab(train_elon_set, train_dalai_set, min_freq=config.min_freq)
 
     if config.load_pretrained_embed:
         start = time.time()
@@ -66,11 +63,9 @@ def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
         device=config.device
     )
 
-    train_elon_iter, train_dalai_iter, train_donald_iter, train_dril_iter = map(lambda x: dataiter_fn(x, True),
-                                                                                [train_elon_set, train_dalai_set,
-                                                                                 train_donald_set, train_dril_set])
+    train_elon_iter, train_dalai_iter = map(lambda x: dataiter_fn(x, True), [train_elon_set, train_dalai_set])
 
-    train_iters = DatasetIterator(train_elon_iter, train_dalai_iter, train_donald_iter, train_dril_iter)
+    train_iters = DatasetIterator(train_elon_iter, train_dalai_iter)
 
     return train_iters, vocab
 
