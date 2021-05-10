@@ -125,7 +125,7 @@ def main(args):
     n_tweets = args.n_tweets
     beam = args.beam_search
 
-    conf = 'seq2seq/config/config.yaml'
+    conf = 'config.yaml'
     with open(conf) as file:
         config = yaml.safe_load(file.read())
 
