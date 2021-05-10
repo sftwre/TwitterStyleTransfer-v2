@@ -25,7 +25,7 @@ class Config():
     min_freq = 3
     max_length = 58
     embed_size = 100
-    d_model = 256
+    d_model = 100
     h = 4
     num_styles = 4
     num_classes = num_styles + 1 if discriminator_method == 'Multi' else 2
