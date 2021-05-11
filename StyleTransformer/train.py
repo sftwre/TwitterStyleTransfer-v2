@@ -374,7 +374,7 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
     gold_text, raw_output, rev_output = zip(inference(dril_iter, 0), inference(biden_iter, 1))
 
     evaluator = Evaluator()
-    ref_text = evaluator.yelp_ref
+    ref_text = evaluator.twitter_ref
 
     acc_dalai = evaluator.twitter_acc_0(rev_output[0])
     acc_elon = evaluator.twitter_acc_1(rev_output[1])
