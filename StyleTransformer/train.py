@@ -368,24 +368,24 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
 
         return gold_text, raw_output, rev_output
 
-    pos_iter = test_iters.pos_iter
-    neg_iter = test_iters.neg_iter
+    biden_iter = test_iters.elon_iter
+    dril_iter = test_iters.dalai_iter
 
-    gold_text, raw_output, rev_output = zip(inference(neg_iter, 0), inference(pos_iter, 1))
+    gold_text, raw_output, rev_output = zip(inference(dril_iter, 0), inference(biden_iter, 1))
 
     evaluator = Evaluator()
     ref_text = evaluator.yelp_ref
 
-    acc_neg = evaluator.yelp_acc_0(rev_output[0])
-    acc_pos = evaluator.yelp_acc_1(rev_output[1])
-    bleu_neg = evaluator.yelp_ref_bleu_0(rev_output[0])
-    bleu_pos = evaluator.yelp_ref_bleu_1(rev_output[1])
-    ppl_neg = evaluator.yelp_ppl(rev_output[0])
-    ppl_pos = evaluator.yelp_ppl(rev_output[1])
+    acc_dalai = evaluator.twitter_acc_0(rev_output[0])
+    acc_elon = evaluator.twitter_acc_1(rev_output[1])
+    bleu_dalai = evaluator.twitter_ref_bleu_0(rev_output[0])
+    bleu_elon = evaluator.twitter_ref_bleu_1(rev_output[1])
+    ppl_dalai = evaluator.twitter_ppl(rev_output[0])
+    ppl_elon = evaluator.twitter_ppl(rev_output[1])
 
     for k in range(5):
         idx = np.random.randint(len(rev_output[0]))
-        print('*' * 20, 'neg sample', '*' * 20)
+        print('*' * 20, 'dalai sample', '*' * 20)
         print('[gold]', gold_text[0][idx])
         print('[raw ]', raw_output[0][idx])
         print('[rev ]', rev_output[0][idx])
@@ -395,7 +395,7 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
 
     for k in range(5):
         idx = np.random.randint(len(rev_output[1]))
-        print('*' * 20, 'pos sample', '*' * 20)
+        print('*' * 20, 'elon sample', '*' * 20)
         print('[gold]', gold_text[1][idx])
         print('[raw ]', raw_output[1][idx])
         print('[rev ]', rev_output[1][idx])
@@ -403,30 +403,30 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
 
     print('*' * 20, '********', '*' * 20)
 
-    print(('[auto_eval] acc_pos: {:.4f} acc_neg: {:.4f} ' + \
-           'bleu_pos: {:.4f} bleu_neg: {:.4f} ' + \
-           'ppl_pos: {:.4f} ppl_neg: {:.4f}\n').format(
-        acc_pos, acc_neg, bleu_pos, bleu_neg, ppl_pos, ppl_neg,
+    print(('[auto_eval] acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
+           'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
+           'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
+        acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
     ))
 
     # save output
     save_file = config.save_folder + '/' + str(global_step) + '.txt'
     eval_log_file = config.save_folder + '/eval_log.txt'
     with open(eval_log_file, 'a') as fl:
-        print(('iter{:5d}:  acc_pos: {:.4f} acc_neg: {:.4f} ' + \
-               'bleu_pos: {:.4f} bleu_neg: {:.4f} ' + \
-               'ppl_pos: {:.4f} ppl_neg: {:.4f}\n').format(
-            global_step, acc_pos, acc_neg, bleu_pos, bleu_neg, ppl_pos, ppl_neg,
+        print(('iter{:5d}:  acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
+               'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
+               'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
+            global_step, acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
         ), file=fl)
     with open(save_file, 'w') as fw:
-        print(('[auto_eval] acc_pos: {:.4f} acc_neg: {:.4f} ' + \
-               'bleu_pos: {:.4f} bleu_neg: {:.4f} ' + \
-               'ppl_pos: {:.4f} ppl_neg: {:.4f}\n').format(
-            acc_pos, acc_neg, bleu_pos, bleu_neg, ppl_pos, ppl_neg,
+        print(('[auto_eval] acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
+               'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
+               'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
+            acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
         ), file=fw)
 
         for idx in range(len(rev_output[0])):
-            print('*' * 20, 'neg sample', '*' * 20, file=fw)
+            print('*' * 20, 'dalai sample', '*' * 20, file=fw)
             print('[gold]', gold_text[0][idx], file=fw)
             print('[raw ]', raw_output[0][idx], file=fw)
             print('[rev ]', rev_output[0][idx], file=fw)

@@ -4,6 +4,7 @@ Modified code from https://github.com/fastnlp/style-transformer
 import os
 import torch
 import yaml
+from argparse import ArgumentParser
 from data import load_dataset
 from transformer import StyleTransformer, Discriminator
 from train import train, auto_eval
@@ -56,14 +57,39 @@ class Config():
 
 def main():
 
+    parser = ArgumentParser()
+    parser.add_argument('--train', dest='train_model', action='store_true', help='Flag to train model')
+    parser.add_argument('--eval', dest='train_model', action='store_false', help='Flag to evaluate pre-trained model')
+    parser.set_defaults(train_model=True)
+
+    parser.add_argument('--step', required=False, type=int, help='Last global step of pre-trained model to load.')
+    parser.add_argument('--save_path', required=False, type=str, help='Path to save directory.')
+
+    args = parser.parse_args()
+    train_model = args.train_model
+    step = args.step
+    save_path = args.save_path
+
     config = Config()
-    train_iters, vocab = load_dataset(config)
+    train_iters, test_iters, vocab = load_dataset(config)
     print('Vocab size:', len(vocab))
     model_F = StyleTransformer(config, vocab).to(config.device)
     model_D = Discriminator(config, vocab).to(config.device)
+
+    # load pre-trained models from save_path
+    if (save_path is not None) and (step is not None):
+        f_pth = os.path.join(config.config.get('PROJECT_DIR'), save_path, 'ckpts', f'{step}_F.pth')
+        d_pth = os.path.join(config.config.get('PROJECT_DIR'), save_path, 'ckpts', f'{step}_D.pth')
+
+        model_F.load_state_dict(torch.load(f_pth))
+        model_D.load_state_dict(torch.load(d_pth))
+
     print(config.discriminator_method)
 
-    train(config, vocab, model_F, model_D, train_iters)
+    if train_model:
+        train(config, vocab, model_F, model_D, train_iters)
+    else:
+        auto_eval(config, vocab, model_F, test_iters, step, 1)
 
 
 if __name__ == '__main__':

@@ -22,7 +22,8 @@ class DatasetIterator(object):
                 yield batch_elon.text, batch_dalai.text
 
 
-def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt'):
+def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt',
+                 test_biden='JoeBiden.txt', test_dril='dril.txt'):
 
     root = config.data_path
     TEXT = data.Field(batch_first=True, eos_token='<eos>')
@@ -34,11 +35,7 @@ def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt')
     )
 
     train_elon_set, train_dalai_set = map(dataset_fn, [train_elon, train_dalai])
-
-    # max_len = max(max([len(ex.text) for ex in train_dalai_set.examples]),
-    #               max([len(ex.text) for ex in train_elon_set.examples]))
-    #
-    # config.max_length = max_len
+    test_biden_set, test_dril_set = map(dataset_fn, [test_biden, test_dril])
 
     TEXT.build_vocab(train_elon_set, train_dalai_set, min_freq=config.min_freq)
 
@@ -64,11 +61,12 @@ def load_dataset(config, train_elon='elonmusk.txt', train_dalai='DalaiLama.txt')
     )
 
     train_elon_iter, train_dalai_iter = map(lambda x: dataiter_fn(x, True), [train_elon_set, train_dalai_set])
+    test_biden_iter, test_dril_iter = map(lambda x: dataiter_fn(x, False), [test_biden_set, test_dril_set])
 
     train_iters = DatasetIterator(train_elon_iter, train_dalai_iter)
+    test_iters = DatasetIterator(test_biden_iter, test_dril_iter)
 
-    return train_iters, vocab
-
+    return train_iters, test_iters, vocab
 
 # if __name__ == '__main__':
     # train_iter, _, _, vocab = load_dataset('../data/yelp/')
