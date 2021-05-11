@@ -16,3 +16,5 @@ webapp/node_modules
 __pycache__/*
 
 config.yaml
+
+./embedding/*
