@@ -336,6 +336,10 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
         rev_output = []
         for batch in data_iter:
             inp_tokens = batch.text
+
+            if inp_tokens.shape[1] > config.max_length:
+                continue
+
             inp_lengths = get_lengths(inp_tokens, eos_idx)
             raw_styles = torch.full_like(inp_tokens[:, 0], raw_style)
             rev_styles = 1 - raw_styles

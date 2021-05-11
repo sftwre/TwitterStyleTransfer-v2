@@ -64,11 +64,17 @@ def main():
 
     parser.add_argument('--step', required=False, type=int, help='Last global step of pre-trained model to load.')
     parser.add_argument('--save_path', required=False, type=str, help='Path to save directory.')
+    parser.add_argument('--device_id', required=False, type=str, help='If of device to train model on.')
 
     args = parser.parse_args()
     train_model = args.train_model
     step = args.step
     save_path = args.save_path
+    device_id = args.device_id
+
+    # mask device to train model on
+    if device_id is not None and torch.cuda.is_available():
+        os.environ['CUDA_VISIBLE_DEVICES'] = device_id
 
     config = Config()
     train_iters, test_iters, vocab = load_dataset(config)
