@@ -17,7 +17,7 @@ class Config():
         config = yaml.safe_load(file.read())
 
     data_path = os.path.join(config.get('DATA_PATH'), 'individual')
-    log_dir = 'runs/exp'
+    log_dir = os.path.join(config.get('PROJECT_DIR'), 'runs/StyleTransformer')
     save_path = os.path.join(config.get('PROJECT_DIR'), 'save')
     pretrained_embed_path = os.path.join(config.get('PROJECT_DIR'), 'embedding/')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

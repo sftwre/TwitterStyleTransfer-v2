@@ -8,6 +8,7 @@ import torch
 import numpy as np
 from torch import nn, optim
 from torch.nn.utils import clip_grad_norm_
+from torch.utils.tensorboard import SummaryWriter
 
 from evaluator import Evaluator
 from utils import tensor2text, calc_ppl, idx2onehot, add_noise, word_drop
@@ -232,7 +233,8 @@ def train(config, vocab, model_F, model_D, train_iters):
     his_f_cyc_loss = []
     his_f_adv_loss = []
 
-    # writer = SummaryWriter(config.log_dir)
+    writer = SummaryWriter(config.log_dir)
+
     global_step = 0
     model_F.train()
     model_D.train()
@@ -256,6 +258,7 @@ def train(config, vocab, model_F, model_D, train_iters):
             his_f_slf_loss = []
             his_f_cyc_loss = []
             print('[iter: {}] slf_loss:{:.4f}, rec_loss:{:.4f}'.format(i + 1, avrg_f_slf_loss, avrg_f_cyc_loss))
+            writer.add_scalars('F pretraining', {'slf_loss':avrg_f_slf_loss.item(), 'rec_loss': avrg_f_cyc_loss.item()}, i+1)
 
     print('Training start......')
 
@@ -310,6 +313,11 @@ def train(config, vocab, model_F, model_D, train_iters):
                 avrg_f_slf_loss, avrg_f_cyc_loss, avrg_f_adv_loss,
                 temperature, config.inp_drop_prob * drop_decay
             ))
+
+            writer.add_scalar('Training - F slf_loss', avrg_f_slf_loss.item(), global_step)
+            writer.add_scalar('Training - F cyc_loss', avrg_f_cyc_loss.item(), global_step)
+            writer.add_scalar('Training - F adv_loss', avrg_f_adv_loss.item(), global_step)
+            writer.add_scalar('Training - D adv_loss', avrg_d_adv_loss.item(), global_step)
 
         if global_step % config.eval_steps == 0:
             his_d_adv_loss = []
