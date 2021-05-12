@@ -204,7 +204,7 @@ def main(args):
             # Samples latent and conditional codes randomly from prior
             z = model.sample_z_prior(1)
 
-            sample_idxs = model.sample_sentence(z)
+            sample_idxs = model.sample_sentence(z, c)
 
             # use beam search to find k most likely sequences
             if beam:
