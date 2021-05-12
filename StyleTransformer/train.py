@@ -334,6 +334,7 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
         gold_text = []
         raw_output = []
         rev_output = []
+
         for batch in data_iter:
             inp_tokens = batch.text
 
@@ -370,6 +371,8 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
             raw_output += tensor2text(vocab, raw_log_probs.argmax(-1).cpu())
             rev_output += tensor2text(vocab, rev_log_probs.argmax(-1).cpu())
 
+            break
+
         return gold_text, raw_output, rev_output
 
     biden_iter = test_iters.elon_iter
@@ -378,12 +381,10 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
     gold_text, raw_output, rev_output = zip(inference(dril_iter, 0), inference(biden_iter, 1))
 
     evaluator = Evaluator()
-    ref_text = evaluator.twitter_ref
 
-    acc_dalai = evaluator.twitter_acc_0(rev_output[0])
-    acc_elon = evaluator.twitter_acc_1(rev_output[1])
-    bleu_dalai = evaluator.twitter_ref_bleu_0(rev_output[0])
-    bleu_elon = evaluator.twitter_ref_bleu_1(rev_output[1])
+    # ttr_dalai = evaluator.ttr(rev_output[0])
+    # ttr_elon = evaluator.ttr(rev_output[1])
+
     ppl_dalai = evaluator.twitter_ppl(rev_output[0])
     ppl_elon = evaluator.twitter_ppl(rev_output[1])
 
@@ -393,7 +394,6 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
         print('[gold]', gold_text[0][idx])
         print('[raw ]', raw_output[0][idx])
         print('[rev ]', rev_output[0][idx])
-        print('[ref ]', ref_text[0][idx])
 
     print('*' * 20, '********', '*' * 20)
 
@@ -403,38 +403,26 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
         print('[gold]', gold_text[1][idx])
         print('[raw ]', raw_output[1][idx])
         print('[rev ]', rev_output[1][idx])
-        print('[ref ]', ref_text[1][idx])
 
     print('*' * 20, '********', '*' * 20)
 
-    print(('[auto_eval] acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
-           'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
-           'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
-        acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
-    ))
+    print(('[auto_eval] ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(ppl_elon, ppl_dalai))
 
     # save output
     save_file = config.save_folder + '/' + str(global_step) + '.txt'
     eval_log_file = config.save_folder + '/eval_log.txt'
+
     with open(eval_log_file, 'a') as fl:
-        print(('iter{:5d}:  acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
-               'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
-               'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
-            global_step, acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
-        ), file=fl)
+        print(('iter{:5d}: ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(global_step, ppl_elon, ppl_dalai), file=fl)
+
     with open(save_file, 'w') as fw:
-        print(('[auto_eval] acc_elon: {:.4f} acc_dalai: {:.4f} ' + \
-               'bleu_elon: {:.4f} bleu_dalai: {:.4f} ' + \
-               'ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(
-            acc_elon, acc_dalai, bleu_elon, bleu_dalai, ppl_elon, ppl_dalai,
-        ), file=fw)
+        print(('[auto_eval] ppl_elon: {:.4f} ppl_dalai: {:.4f}\n').format(ppl_elon, ppl_dalai), file=fw)
 
         for idx in range(len(rev_output[0])):
             print('*' * 20, 'dalai sample', '*' * 20, file=fw)
             print('[gold]', gold_text[0][idx], file=fw)
             print('[raw ]', raw_output[0][idx], file=fw)
             print('[rev ]', rev_output[0][idx], file=fw)
-            print('[ref ]', ref_text[0][idx], file=fw)
 
         print('*' * 20, '********', '*' * 20, file=fw)
 
@@ -443,7 +431,6 @@ def auto_eval(config, vocab, model_F, test_iters, global_step, temperature):
             print('[gold]', gold_text[1][idx], file=fw)
             print('[raw ]', raw_output[1][idx], file=fw)
             print('[rev ]', rev_output[1][idx], file=fw)
-            print('[ref ]', ref_text[1][idx], file=fw)
 
         print('*' * 20, '********', '*' * 20, file=fw)
 
