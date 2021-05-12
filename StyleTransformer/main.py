@@ -11,7 +11,7 @@ from train import train, auto_eval
 
 class Config():
 
-    conf = '../config.yaml'
+    conf = './config.yaml'
 
     with open(conf, 'r') as file:
         config = yaml.safe_load(file.read())
@@ -62,15 +62,20 @@ def main():
     parser.add_argument('--eval', dest='train_model', action='store_false', help='Flag to evaluate pre-trained model')
     parser.set_defaults(train_model=True)
 
+    parser.add_argument('--pretrain', dest='pretrain', action='store_true', help='Flag to pretrain generator and discriminator')
+    parser.add_argument('--load_checkpoints', dest='pretrain', action='store_false', help='Flag to load pretrained generator and discriminators')
+    parser.set_defaults(pretrain=True)
+
     parser.add_argument('--step', required=False, type=int, help='Last global step of pre-trained model to load.')
-    parser.add_argument('--save_path', required=False, type=str, help='Path to save directory.')
+    parser.add_argument('--save_folder', required=False, type=str, help='Path to save directory.')
     parser.add_argument('--device_id', required=False, type=str, help='If of device to train model on.')
 
     args = parser.parse_args()
     train_model = args.train_model
     step = args.step
-    save_path = args.save_path
+    save_folder = args.save_folder
     device_id = args.device_id
+    pretrain = args.pretrain
 
     # mask device to train model on
     if device_id is not None and torch.cuda.is_available():
@@ -82,18 +87,24 @@ def main():
     model_F = StyleTransformer(config, vocab).to(config.device)
     model_D = Discriminator(config, vocab).to(config.device)
 
-    # load pre-trained models from save_path
-    if (save_path is not None) and (step is not None):
-        f_pth = os.path.join(config.config.get('PROJECT_DIR'), save_path, 'ckpts', f'{step}_F.pth')
-        d_pth = os.path.join(config.config.get('PROJECT_DIR'), save_path, 'ckpts', f'{step}_D.pth')
+    # load pre-trained models from save_path for evaluation
+    if (save_folder is not None) and (step is not None):
+        f_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'{step}_F.pth')
+        d_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'{step}_D.pth')
 
         model_F.load_state_dict(torch.load(f_pth))
         model_D.load_state_dict(torch.load(d_pth))
 
-    print(config.discriminator_method)
+    # load pre-trained models for gen/disc
+    if not pretrain:
+        f_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'pretrained_F.pth')
+        d_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'pretrained_D.pth')
+
+        model_F.load_state_dict(torch.load(f_pth))
+        model_D.load_state_dict(torch.load(d_pth))
 
     if train_model:
-        train(config, vocab, model_F, model_D, train_iters)
+        train(config, vocab, model_F, model_D, train_iters, pretrain=pretrain)
     else:
         auto_eval(config, vocab, model_F, test_iters, step, 1)
 

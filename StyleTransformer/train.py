@@ -224,7 +224,7 @@ def f_step(config, vocab, model_F, model_D, optimizer_F, batch, temperature, dro
     return slf_rec_loss.item(), cyc_rec_loss.item(), adv_loss.item()
 
 
-def train(config, vocab, model_F, model_D, train_iters):
+def train(config, vocab, model_F, model_D, train_iters, pretrain=True):
     optimizer_F = optim.Adam(model_F.parameters(), lr=config.lr_F, weight_decay=config.L2)
     optimizer_D = optim.Adam(model_D.parameters(), lr=config.lr_D, weight_decay=config.L2)
 
@@ -244,21 +244,26 @@ def train(config, vocab, model_F, model_D, train_iters):
     os.makedirs(config.save_folder + '/ckpts')
     print('Save Path:', config.save_folder)
 
-    print('Model F pretraining......')
-    for i, batch in enumerate(train_iters):
-        if i >= config.F_pretrain_iter:
-            break
-        slf_loss, cyc_loss, _ = f_step(config, vocab, model_F, model_D, optimizer_F, batch, 1.0, 1.0, False)
-        his_f_slf_loss.append(slf_loss)
-        his_f_cyc_loss.append(cyc_loss)
+    if pretrain:
+        print('Model F pretraining......')
+        for i, batch in enumerate(train_iters):
+            if i >= config.F_pretrain_iter:
+                break
+            slf_loss, cyc_loss, _ = f_step(config, vocab, model_F, model_D, optimizer_F, batch, 1.0, 1.0, False)
+            his_f_slf_loss.append(slf_loss)
+            his_f_cyc_loss.append(cyc_loss)
 
-        if (i + 1) % 10 == 0:
-            avrg_f_slf_loss = np.mean(his_f_slf_loss)
-            avrg_f_cyc_loss = np.mean(his_f_cyc_loss)
-            his_f_slf_loss = []
-            his_f_cyc_loss = []
-            print('[iter: {}] slf_loss:{:.4f}, rec_loss:{:.4f}'.format(i + 1, avrg_f_slf_loss, avrg_f_cyc_loss))
-            writer.add_scalars('F pretraining', {'slf_loss':avrg_f_slf_loss.item(), 'rec_loss': avrg_f_cyc_loss.item()}, i+1)
+            if (i + 1) % 10 == 0:
+                avrg_f_slf_loss = np.mean(his_f_slf_loss)
+                avrg_f_cyc_loss = np.mean(his_f_cyc_loss)
+                his_f_slf_loss = []
+                his_f_cyc_loss = []
+                print('[iter: {}] slf_loss:{:.4f}, rec_loss:{:.4f}'.format(i + 1, avrg_f_slf_loss, avrg_f_cyc_loss))
+                writer.add_scalars('F pretraining', {'slf_loss':avrg_f_slf_loss.item(), 'rec_loss': avrg_f_cyc_loss.item()}, i+1)
+
+        torch.save(model_F.state_dict(), config.save_folder + '/ckpts/' + 'pretrained_F.pth')
+        torch.save(model_D.state_dict(), config.save_folder + '/ckpts/' + 'pretrained_D.pth')
+        exit()
 
     print('Training start......')
 
