@@ -100,8 +100,8 @@ def main():
         f_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'pretrained_F.pth')
         d_pth = os.path.join(config.save_path, save_folder, 'ckpts', f'pretrained_D.pth')
 
-        model_F.load_state_dict(torch.load(f_pth))
-        model_D.load_state_dict(torch.load(d_pth))
+        model_F.load_state_dict(torch.load(f_pth, map_location=torch.device('cpu')))
+        model_D.load_state_dict(torch.load(d_pth, map_location=torch.device('cpu')))
 
     if train_model:
         train(config, vocab, model_F, model_D, train_iters, pretrain=pretrain)
